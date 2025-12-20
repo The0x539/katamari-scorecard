@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "@preact/signals": "npm:@preact/signals@^2.5.1",
+    "preact": "npm:preact@^10.28.0"
+  },
+  "compilerOptions": {
+    "module": "esnext",
+    "strict": true,
+
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}
