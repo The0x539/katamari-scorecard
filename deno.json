@@ -1,19 +1,22 @@
 {
+  "nodeModulesDir": "auto",
   "tasks": {
     "dump": "deno -R src/dump-strings.ts > src/strings.json",
-    "build": "deno bundle src/index.html --outdir dist",
-    "serve": "deno run -R -N jsr:@std/http/file-server dist",
+    "build": "deno run -A npm:@rsbuild/core build",
+    "run": "deno run -A npm:@rsbuild/core dev"
   },
   "imports": {
     "@preact/signals": "npm:@preact/signals@^2.5.1",
+    "@rsbuild/core": "npm:@rsbuild/core@^1.6.15",
+    "@rsbuild/plugin-preact": "npm:@rsbuild/plugin-preact@^1.6.0",
     "@std/fs": "jsr:@std/fs@^1.0.20",
-    "preact": "npm:preact@^10.28.0",
+    "preact": "npm:preact@^10.28.0"
   },
   "compilerOptions": {
     "module": "esnext",
     "strict": true,
 
     "jsx": "react-jsx",
-    "jsxImportSource": "preact",
+    "jsxImportSource": "preact"
   }
 }

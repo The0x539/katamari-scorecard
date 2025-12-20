@@ -1,6 +1,5 @@
 import { ObjectInfo } from "../asset-bundle.ts";
 import { BinaryReader } from "../decode.ts";
-import { range } from "../util.ts";
 import { AssetBase, AssetType, PPtr } from "./index.ts";
 
 export class MonoBehaviour extends AssetBase {

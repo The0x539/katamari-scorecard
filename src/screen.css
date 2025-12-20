@@ -24,3 +24,11 @@ h2 {
 dt {
   font-weight: 600;
 }
+
+img.king-bg {
+  mask-image: image-set(
+    url("./assets/kingbg-alpha.avif") type("image/avif"),
+    url("./assets/kingbg-alpha.gif") type("image/gif")
+  );
+  mask-mode: luminance;
+}

@@ -3,6 +3,8 @@ import { computed, effect, signal } from "@preact/signals";
 import type { ComponentChildren, JSX, TargetedInputEvent } from "preact";
 import { Mission, SaveFile } from "./save-file.ts";
 
+import { kingbg_color } from "./assets.ts";
+
 import "./screen.css";
 
 import Strings from "./strings.json" with { type: "json" };
@@ -144,10 +146,21 @@ function Scorecard(): JSX.Element | null {
     <>
       <input type="file" onInput={updateFile} />
       <p>
-        or drag+drop <a target="_blank" href={link}>your save file</a>
+        Or drag+drop <a target="_blank" href={link}>your save file</a>
       </p>
+      <KingBg />
       {body}
     </>
+  );
+}
+
+function KingBg(): JSX.Element {
+  return (
+    <picture>
+      <source srcset={kingbg_color.jxl} type="image/jxl" />
+      <source srcset={kingbg_color.webp} type="image/webp" />
+      <img src={kingbg_color.png} class="king-bg" />
+    </picture>
   );
 }
 

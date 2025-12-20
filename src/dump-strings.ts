@@ -1,5 +1,5 @@
 import { Asset } from "./asset-bundle.ts";
-import { MonoBehaviour } from "./asset/mono-behaviour.ts";
+import { MonoBehaviour } from "./unity-asset/mono-behaviour.ts";
 import { BinaryReader } from "./decode.ts";
 import { range } from "./util.ts";
 import * as fs from "@std/fs";
