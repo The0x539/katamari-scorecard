@@ -3,6 +3,8 @@ import { computed, effect, signal } from "@preact/signals";
 import type { ComponentChildren, JSX, TargetedInputEvent } from "preact";
 import { Mission, SaveFile } from "./save-file.ts";
 
+import "./screen.css";
+
 import Strings from "./strings.json" with { type: "json" };
 import { constellationMaxima, cowbearData, missionNames } from "./data.ts";
 
