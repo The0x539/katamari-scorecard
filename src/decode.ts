@@ -134,4 +134,8 @@ export class BinaryReader extends DataView<ArrayBufferLike> {
     this.align(4);
     return s;
   }
+
+  remainder(): ArrayBufferLike {
+    return this.buffer.slice(this.i);
+  }
 }

@@ -12,6 +12,8 @@ export class MonoBehaviour extends AssetBase {
   script: PPtr;
   name: string;
 
+  payload: ArrayBufferLike;
+
   constructor(r: BinaryReader, info: ObjectInfo) {
     super();
 
@@ -20,18 +22,6 @@ export class MonoBehaviour extends AssetBase {
     this.script = new PPtr(r, info.version);
     this.name = r.paddedString();
 
-    if (!this.name.includes("king")) return;
-
-    const m: Record<string, string[]> = {};
-
-    for (const _ of range(r.u32())) {
-      const textID = r.paddedString();
-      const _audioFilename = r.paddedString();
-      const _speaker = r.paddedString();
-      const textData = r.array(r.u32(), r.paddedString);
-      m[textID] = textData;
-    }
-
-    console.log(JSON.stringify(m));
+    this.payload = r.remainder();
   }
 }
