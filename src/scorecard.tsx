@@ -11,7 +11,7 @@ import { localize, things } from "./data.ts";
 import { MissionEntry } from "./mission-entry.tsx";
 import { SaveFile } from "./save-file.ts";
 import { king } from "./assets.ts";
-import { map_push, swap } from "./util.ts";
+import { swap } from "./util.ts";
 import { Radio, Select } from "./controls.tsx";
 
 import type { ThingData } from "./data.ts";
@@ -140,13 +140,33 @@ function localizeSize(s: string): string {
   return localize("UI_NIC", sizeID);
 }
 
-const byCategory = new Map<string, ThingData[]>();
-const bySize = new Map<string, ThingData[]>();
+const collection = (() => {
+  const thingList = Object.values(things);
 
-for (const thing of Object.values(things)) {
-  if (thing.cat) map_push(byCategory, thing.cat, thing);
-  if (thing.s) map_push(bySize, thing.s, thing);
-}
+  const gather = (
+    f: (t: ThingData) => string,
+  ): [string[], Map<string, ThingData[]>] => {
+    const list = new Set(thingList.map(f).filter((x) => x)).keys().toArray();
+    list.sort();
+
+    const groups = new Map<string, ThingData[]>();
+    for (const g of list) groups.set(g, []);
+    for (const t of thingList) groups.get(f(t))?.push(t);
+
+    return [list, groups];
+  };
+
+  const [categories, byCategory] = gather((t) => t.cat);
+  const [sizes, bySize] = gather((t) => t.s);
+
+  return {
+    all: thingList,
+    categories,
+    byCategory,
+    sizes,
+    bySize,
+  };
+})();
 
 type Mode = "all" | "category" | "size";
 type ThingFilterState = {
@@ -157,11 +177,23 @@ type ThingFilterState = {
 
 function Things(): JSX.Element {
   const filterState = createThingFilterState();
+
+  const currentList = useComputed(() => {
+    switch (filterState.mode.value) {
+      case "all":
+        return collection.all;
+      case "category":
+        return collection.byCategory.get(filterState.category.value) ?? [];
+      case "size":
+        return collection.bySize.get(filterState.size.value) ?? [];
+    }
+  });
+
   return (
     <>
       <ThingFilters state={filterState} />
       <ol class="things">
-        {Object.values(things).filter(filterState.visible.value).map(Thing)}
+        {currentList.value.map(Thing)}
       </ol>
     </>
   );
@@ -172,18 +204,7 @@ function createThingFilterState() {
   const category = useSignal("");
   const size = useSignal("");
 
-  const visible = computed(() => {
-    switch (mode.value) {
-      case "all":
-        return () => true;
-      case "category":
-        return (t: ThingData) => t.cat === category.value;
-      case "size":
-        return (t: ThingData) => t.s === size.value;
-    }
-  });
-
-  return { mode, category, size, visible };
+  return { mode, category, size };
 }
 
 function ThingFilters(props: { state: ThingFilterState }): JSX.Element {
@@ -196,7 +217,7 @@ function ThingFilters(props: { state: ThingFilterState }): JSX.Element {
         bind={state.mode}
         defaultChoice="filter-all"
         choices={{
-          "filter-all": { value: "all", label: "All" },
+          "filter-all": { value: "all", label: "Everything" },
           "filter-category": { value: "category", label: "Category" },
           "filter-size": { value: "size", label: "Size" },
         }}
@@ -204,14 +225,14 @@ function ThingFilters(props: { state: ThingFilterState }): JSX.Element {
 
       {state.mode.value === "category" && (
         <Select bind={state.category}>
-          {byCategory.keys().map((cat) => (
+          {collection.categories.map((cat) => (
             <option key={cat} value={cat}>{localize(cat)}</option>
-          )).toArray()}
+          ))}
         </Select>
       )}
       {state.mode.value === "size" && (
         <Select bind={state.size}>
-          {bySize.keys().toArray().toSorted().map((s) => (
+          {collection.sizes.map((s) => (
             <option key={s} value={s}>{localizeSize(s)}</option>
           ))}
         </Select>
