@@ -1,81 +1,23 @@
-export const missionNames = [
-  0,
-  6, // Make a Star 1
-  7, // Make a Star 2
-  11, // Make a Star 4 (yes these are out of order)
-  9, // Make a Star 3
-  12, // Make a Star 5
-  13, // Make a Star 6
-  14, // Make a Star 7
-  15, // Make a Star 8
-  16, // Make a Star 9
-  17, // Make the Moon
+import type { KingTextDigest } from "./game-data/king-text.ts";
+import type { MissionInfoDigest } from "./game-data/mission-info.ts";
+import type { ThingDigest } from "./game-data/thing.ts";
 
-  18, // Make Cancer
-  19, // Make Cygnus
-  0,
-  20, // Make Corona Borealis (out of order)
-  21, // Make Pisces
-  22, // Make Virgo
-  23, // Make Ursa Major
-  27, // Make Gemini
-  28, // Make Taurus
-  0,
-  29, // Make the North Star
-  30, // Eternal 1
-  31, // Eternal 2
-  32, // Eternal 3
-];
+import rawLocalization from "./game-data/locale.json" with { type: "json" };
+import rawMissions from "./game-data/missions.json" with { type: "json" };
+import rawThings from "./game-data/things.json" with { type: "json" };
 
-export const constellationMaxima = [
-  null,
-  null, // Make a Star 1
-  null, // Make a Star 2
-  null, // Make a Star 4 (yes these are out of order)
-  null, // Make a Star 3
-  null, // Make a Star 5
-  null, // Make a Star 6
-  null, // Make a Star 7
-  null, // Make a Star 8
-  null, // Make a Star 9
-  null, // Make the Moon
+import { swap } from "./util.ts";
+swap(rawMissions, 3, 4);
 
-  133, // Make Cancer
-  70, // Make Cygnus
-  null,
-  107, // Make Corona Borealis (out of order)
-  174, // Make Pisces
-  199, // Make Virgo
-  null, // Make Ursa Major
-  108, // Make Gemini
-  null, // Make Taurus
-];
+const localization: KingTextDigest = rawLocalization;
+export const missions: MissionInfoDigest[] = rawMissions;
+export const things: Record<string, ThingDigest> = rawThings;
 
-export const symbols = [
-  null,
-  null, // 1
-  null, // 2
-  null, // 3
-  null, // 4
-  null, // 5
-  null, // 6
-  null, // 7
-  null, // 8
-  null, // 9
-  "🌕", // Make the Moon
-
-  "♋", // Make Cancer
-  "🦢", // Make Cygnus
-  "0",
-  "👑", // Make Corona Borealis (out of order)
-  "♓", // Make Pisces
-  "♍", // Make Virgo
-  "🐻", // Make Ursa Major
-  "♊", // Make Gemini
-  "♉", // Make Taurus
-  "0",
-  "🧭", // Make the North Star
-];
+export function localize(category: string, id: number): string | null {
+  if (id == null) return null;
+  const key = category + "_" + id.toString().padStart(3, "0");
+  return localization[key]?.[1];
+}
 
 export class CowbearData {
   constructor(

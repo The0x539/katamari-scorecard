@@ -1,9 +1,13 @@
 import { render } from "preact";
 import { computed, effect, signal } from "@preact/signals";
 import { ComponentChildren, JSX, TargetedInputEvent } from "preact";
-import { SaveFile, SaveMission } from "./save-file.ts";
 
+import { SaveFile, SaveMission } from "./save-file.ts";
+import { swap } from "./util.ts";
 import { king } from "./assets.ts";
+import { cowbearData, localize, missions } from "./data.ts";
+
+import "./screen.css";
 
 declare global {
   namespace preact.JSX {
@@ -11,25 +15,6 @@ declare global {
       [elemName: string]: unknown;
     }
   }
-}
-
-import "./screen.css";
-
-import Strings from "./strings.json" with { type: "json" };
-import { constellationMaxima, cowbearData, missionNames } from "./data.ts";
-
-function swap<T>(arr: T[], i: number, j: number): void {
-  [arr[i], arr[j]] = [arr[j], arr[i]];
-}
-
-swap(missionNames, 3, 4); // bruh
-
-const STRINGS = Strings as Record<string, string[]>;
-
-function localize(category: string, id: number): string | null {
-  if (id == null) return null;
-  const key = category + "_" + id.toString().padStart(3, "0");
-  return STRINGS[key]?.[1];
 }
 
 const theFile = signal<File | null>(null);
@@ -42,15 +27,16 @@ effect(() => {
 const saveFile = computed(() => {
   if (buffer.value.byteLength === 0) return null;
   const save = new SaveFile(buffer.value);
-  swap(save.missions, 3, 4);
+  swap(save.missions, 3, 4); // bruh
   return save;
 });
 
 function MissionEntry(i: number, mission: SaveMission): JSX.Element | null {
-  let name = localize("UI_ERT", missionNames[i]);
-  if (!name) return null;
+  const nameID = missions[i]?.name;
+  if (!nameID) return null;
+
   // it's MY tool and I get to make the rules
-  name = name.replace("the North Star", "Polaris");
+  const name = localize("UI_ERT", nameID)!.replace("the North Star", "Polaris");
 
   let size = (mission.clearSize % 10) + "mm";
   if (mission.clearSize > 10) {
@@ -95,7 +81,7 @@ function MissionEntry(i: number, mission: SaveMission): JSX.Element | null {
   if (mission.catchCountB > 1) {
     let count = mission.catchCountB.toString();
 
-    const max = constellationMaxima[i];
+    const max = missions[i].max;
     if (max) {
       const pct = Math.floor(+count / max * 100);
       count = `${count} / ${max} (${pct}%)`;

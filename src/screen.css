@@ -95,7 +95,6 @@ king-of-all-cosmos {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -60%);
-    background-image: url("./assets/kingbg-alpha.avif"),
   }
 
   .bg > img {

@@ -93,9 +93,10 @@ export class MissionInfo {
   }
 
   static makeDigest(data: MissionInfo[]): MissionInfoDigest[] {
-    return data.map((m) => ({
+    return data.map((m, i) => ({
       time: m.gameTime,
       meteor: m.meteor,
+      ...extraData[i],
     }));
   }
 }
@@ -103,4 +104,36 @@ export class MissionInfo {
 export type MissionInfoDigest = {
   time: number;
   meteor: number;
+  name?: number;
+  max?: number;
 };
+
+const extraData = [
+  null,
+  { name: 6 }, // Make a Star 1
+  { name: 7 }, // Make a Star 2
+  { name: 11 }, // Make a Star 4 (yes these are out of order)
+  { name: 9 }, // Make a Star 3
+  { name: 12 }, // Make a Star 5
+  { name: 13 }, // Make a Star 6
+  { name: 14 }, // Make a Star 7
+  { name: 15 }, // Make a Star 8
+  { name: 16 }, // Make a Star 9
+  { name: 17 }, // Make the Moon
+
+  { name: 18, max: 133 }, // Make Cancer
+  { name: 19, max: 70 }, // Make Cygnus
+  null,
+  { name: 20, max: 107 }, // Make Corona Borealis (out of order)
+  { name: 21, max: 174 }, // Make Pisces
+  { name: 22, max: 199 }, // Make Virgo
+  { name: 23 }, // Make Ursa Major
+  { name: 27, max: 108 }, // Make Gemini
+  { name: 28 }, // Make Taurus
+  null,
+  { name: 29 }, // Make the North Star
+
+  { name: 30 }, // Eternal 1
+  { name: 31 }, // Eternal 2
+  { name: 32 }, // Eternal 3
+];
