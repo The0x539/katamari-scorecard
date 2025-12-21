@@ -1,3 +1,5 @@
+/// <reference lib="deno.ns" />
+
 import { Asset } from "./asset-bundle.ts";
 import { MonoBehaviour } from "./unity-asset/mono-behaviour.ts";
 import { BinaryReader } from "./decode.ts";
