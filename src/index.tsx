@@ -1,7 +1,7 @@
 import { render } from "preact";
 import { computed, effect, signal } from "@preact/signals";
 import { ComponentChildren, JSX, TargetedInputEvent } from "preact";
-import { Mission, SaveFile } from "./save-file.ts";
+import { SaveFile, SaveMission } from "./save-file.ts";
 
 import { king } from "./assets.ts";
 
@@ -46,7 +46,7 @@ const saveFile = computed(() => {
   return save;
 });
 
-function MissionEntry(i: number, mission: Mission): JSX.Element | null {
+function MissionEntry(i: number, mission: SaveMission): JSX.Element | null {
   let name = localize("UI_ERT", missionNames[i]);
   if (!name) return null;
   // it's MY tool and I get to make the rules
@@ -73,7 +73,8 @@ function MissionEntry(i: number, mission: Mission): JSX.Element | null {
 
   const pairs: Record<string, ComponentChildren> = {
     "Diameter": size,
-    "Time": time,
+    "Clear time": time,
+    "Clear count": mission.clearCount,
     "Present": mission.swPresent ? "🎁" : "🔎",
     "Objects": mission.clearCatchCount,
   };
@@ -113,6 +114,10 @@ function MissionEntry(i: number, mission: Mission): JSX.Element | null {
         ))}
       </ol>
     );
+  }
+
+  if (mission.fallenStarCount) {
+    pairs["Meteor"] = localize("OT_STR", mission.fallenStarName);
   }
 
   return (

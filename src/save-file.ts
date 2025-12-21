@@ -4,7 +4,7 @@ export class SaveFile {
   moonMaxSize: number;
   kataMaxSize: number;
 
-  missions: Mission[];
+  missions: SaveMission[];
 
   game: Game;
 
@@ -29,7 +29,7 @@ export class SaveFile {
 
     this.moonMaxSize = r.i32();
     this.kataMaxSize = r.i32();
-    this.missions = r.array(44, (r) => new Mission(r));
+    this.missions = r.array(44, (r) => new SaveMission(r));
     this.game = new Game(r);
     this.isVibration = r.pair(r.bool);
     this.isStereo = r.bool();
@@ -49,26 +49,72 @@ export class SaveFile {
   }
 }
 
-export class Mission {
+export class SaveMission {
+  /** Constellation object count (e.g. crabs, swans, crowns) */
   catchCountB: number;
+  /** Number of times played */
   clearCount: number;
+  /** Seemingly unused, but synced with `gNk_ConstellationMonoLocCount` in the game code. */
   constellationDenominator: number;
+  /**
+   * The ID of the randomly-generated "star name" associated with the 1st item category.
+   * Seen ingame in "View Constellations".
+   * Only the first element of this array is ever accessed in the game code.
+   * Localized under OT_STR_###.
+   */
   catchRanking: [number, number, number];
+  /** Number of objects rolled up */
   clearCatchCount: number;
+  /** Katamari diameter in millimeters on mission completion */
   clearSize: number;
+  /** Time (in frames at 30 FPS) taken to reach goal size */
   clearTime: number;
+  /** Time (in frames at 30 FPS) taken to reach goal size on a run fast enough to get the meteor. */
   fallenStarTime: number;
+  /**
+   * IDs of most-collected categories of items.
+   * Localized under OT_CTG_###.
+   */
   catchRankCategory: [number, number, number];
+  /**
+   * Rankings of the elements of catchRankCategory.
+   * Usually [0, 1, 2], but may be e.g. [0, 1, 1] if two categories are tied for 2nd.
+   * Localized under UI_SYS_###, where the numbers start at 077.
+   */
   catchRankName: [number, number, number];
+  /**
+   * Whether the meteor has been unlocked for this mission.
+   * Despite the name, this does not get incremented past 1.
+   */
   fallenStarCount: number;
+  /**
+   * Similar to `catchRanking`, but for the meteor. Seen ingame in "Meteor Control".
+   * Localized under OT_STR_###.
+   */
   fallenStarName: number;
+  /** Unused. */
   fallenStarType: number;
+  /**
+   * ID of the single constellation object (bear or cow) collected.
+   * Meaning of the number, other than as an index into cowbearData, is unknown.
+   */
   nameA: number;
+  /**
+   * Determines the size of the star/constellation shown in various menus.
+   * More of an enum than a measurement.
+   * Handled a little differently for Luna, Ursa Major, Taurus, and Polaris.
+   * Doesn't seem to correspond to any *text* ingame.
+   */
   rating: number;
+  /** Unused. */
   shine: number;
-  size: number;
+  /** Unused. Likely originally intended to correspond to `nameA`. */
+  sizeA: number;
+  /** Whether eternal mode is unlocked for this mission. */
   swAppear: number;
+  /** Unused. */
   swClear: number;
+  /** Whether this mission's present has been collected. */
   swPresent: number;
 
   constructor(r: BinaryReader) {
@@ -88,7 +134,7 @@ export class Mission {
     this.nameA = r.i32();
     this.rating = r.i32();
     this.shine = r.i32();
-    this.size = r.i32();
+    this.sizeA = r.i32();
     this.swAppear = r.i32();
     this.swClear = r.i32();
     this.swPresent = r.i32();
