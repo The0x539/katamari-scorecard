@@ -87,6 +87,8 @@ king-of-all-cosmos {
   height: 20rem;
 
   animation: bob 3s alternate infinite ease-in-out;
+  pointer-events: none;
+  user-select: none;
 
   .face {
     z-index: 1;
