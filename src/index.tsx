@@ -6,7 +6,7 @@ import { Mission, SaveFile } from "./save-file.ts";
 import { king } from "./assets.ts";
 
 declare global {
-  namespace preact.createElement.JSX {
+  namespace preact.JSX {
     interface IntrinsicElements {
       [elemName: string]: unknown;
     }
@@ -36,7 +36,7 @@ const theFile = signal<File | null>(null);
 
 const buffer = signal(new ArrayBuffer());
 effect(() => {
-  theFile.value?.arrayBuffer().then((b) => buffer.value = b);
+  theFile.value?.arrayBuffer().then((b: ArrayBuffer) => buffer.value = b);
 });
 
 const saveFile = computed(() => {
