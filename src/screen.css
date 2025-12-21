@@ -20,7 +20,7 @@
   background-attachment: fixed;
   background-size: auto 100vh;
 
-  color: white;
+  color-scheme: only dark;
 }
 
 body {

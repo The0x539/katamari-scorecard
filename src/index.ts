@@ -1,5 +1,5 @@
 import { createElement, render } from "preact";
-import { Scorecard, theFile } from "./scorecard.tsx";
+import { fileState, Scorecard } from "./scorecard.tsx";
 
 import "./screen.css";
 
@@ -35,7 +35,7 @@ document.addEventListener("drop", (e: DragEvent) => {
     const file = list[i].getAsFile();
     if (file) {
       e.preventDefault();
-      theFile.value = file;
+      fileState.setSource(file);
       break;
     }
   }

@@ -6,87 +6,102 @@ import {
   useSignal,
 } from "@preact/signals";
 import { Show } from "@preact/signals/utils";
-import { useRef } from "preact/hooks";
 
 import { localize, things } from "./data.ts";
 import { MissionEntry } from "./mission-entry.tsx";
 import { SaveFile } from "./save-file.ts";
 import { king } from "./assets.ts";
 import { map_push, swap } from "./util.ts";
+import { Radio, Select } from "./controls.tsx";
 
 import type { ThingData } from "./data.ts";
-import type { JSX } from "preact";
+import type { JSX, TargetedInputEvent } from "preact";
+import type { ReadonlySignal, Signal } from "@preact/signals";
 
-export const theFile = signal<File | null>(null);
+class FileState {
+  private readonly source = signal<File | null>(null);
+  private readonly buffer = signal(new ArrayBuffer());
 
-const buffer = signal(new ArrayBuffer());
+  readonly save: ReadonlySignal<SaveFile | null> = computed(() => {
+    const buf = this.buffer.value;
+    if (buf.byteLength === 0) return null;
 
-const reloadFile = async () => {
-  if (!theFile.value) return;
-  buffer.value = await theFile.value.arrayBuffer();
+    const save = new SaveFile(buf);
+    swap(save.missions, 3, 4); // bruh
+    return save;
+  });
+
+  constructor() {
+    effect(() => void this.refreshBuffer());
+  }
+
+  setSource(file: File | null | undefined): void {
+    if (file) this.source.value = file;
+  }
+
+  async refreshBuffer(): Promise<void> {
+    const source = this.source.value;
+    if (!source) return;
+    this.buffer.value = await source.arrayBuffer();
+  }
+}
+
+export const fileState = new FileState();
+
+const updateFile = (
+  input: HTMLInputElement | TargetedInputEvent<HTMLInputElement> | null,
+) => {
+  if (input === null) return;
+  if (!(input instanceof HTMLInputElement)) input = input.currentTarget;
+
+  fileState.setSource(input.files?.[0]);
 };
-
-effect(() => void reloadFile());
-
-const saveFile = computed(() => {
-  if (buffer.value.byteLength === 0) return null;
-  const save = new SaveFile(buffer.value);
-  swap(save.missions, 3, 4); // bruh
-  return save;
-});
 
 type Tab = "missions" | "things";
 const currentTab = signal<Tab>("missions");
 
 export function Scorecard(): JSX.Element {
-  const file = saveFile.value;
-  const hasFile = useComputed(() => saveFile.value !== null);
-
   const link =
     "https://www.pcgamingwiki.com/wiki/Katamari_Damacy_Reroll#Save_game_data_location";
 
-  let body = null;
-
-  if (file) {
-    switch (currentTab.value) {
-      case "missions": {
-        body = (
-          <ol class="missions">
-            {file.missions.map((m, i) => MissionEntry(i, m))}
-          </ol>
-        );
-        break;
-      }
-      case "things": {
-        body = <Things />;
-      }
-    }
-  }
-
-  const theInput = useRef<HTMLInputElement | null>(null);
-
-  const updateFile = () => {
-    theFile.value = theInput.current?.files?.[0] ?? null;
-  };
+  const hasFile = useComputed(() => fileState.save.value !== null);
+  const save = fileState.save.value;
 
   return (
     <>
       <h1>Katamari Scorecard</h1>
-      <input type="file" ref={theInput} onInput={updateFile} />
+      <input
+        type="file"
+        onInput={updateFile}
+        ref={updateFile}
+      />
       <p>
         Or drag+drop <a target="_blank" href={link}>your save file</a>
       </p>
       <Show when={hasFile}>
-        <button type="button" onClick={reloadFile}>Reload</button>
+        <button type="button" onClick={() => fileState.refreshBuffer()}>
+          Reload
+        </button>
       </Show>
       <KingOfAllCosmos />
-      {file && <Tabs />}
-      {body}
-      {file && (
-        <button type="button" onClick={() => console.dir(file)}>
+      <Show when={hasFile}>
+        <Tabs />
+
+        {currentTab.value}
+
+        <Show when={() => currentTab.value === "missions"}>
+          <ol class="missions">
+            {save?.missions.map((m, i) => MissionEntry(i, m))}
+          </ol>
+        </Show>
+        <Show when={() => currentTab.value === "things"}>
+          <Things />
+        </Show>
+
+        <button type="button" onClick={() => console.dir(save)}>
           Dump full decoded save file to console
         </button>
-      )}
+      </Show>
     </>
   );
 }
@@ -126,64 +141,86 @@ const byCategory = new Map<string, ThingData[]>();
 const bySize = new Map<string, ThingData[]>();
 
 for (const thing of Object.values(things)) {
-  map_push(byCategory, thing.cat, thing);
-  map_push(bySize, thing.s, thing);
+  if (thing.cat) map_push(byCategory, thing.cat, thing);
+  if (thing.s) map_push(bySize, thing.s, thing);
 }
 
-const sizes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+type Mode = "all" | "category" | "size";
+type ThingFilterState = {
+  mode: Signal<Mode>;
+  category: Signal<string>;
+  size: Signal<string>;
+};
 
 function Things(): JSX.Element {
-  const file = saveFile.value!;
-
-  const currentMode = useSignal<"category" | "size">("category");
-  const currentSelection = useSignal<string>(
-    Object.values(things)[1].cat,
-  );
-
-  const visible = currentMode.value === "category"
-    ? (t: ThingData) => t.cat === currentSelection.value
-    : (t: ThingData) => t.s === currentSelection.value;
-
+  const filterState = createThingFilterState();
   return (
     <>
-      <nav>
-        <p>By category:</p>
-        {byCategory.keys().filter((c) => c).map((cat) => (
-          <button
-            type="button"
-            onClick={() => {
-              currentMode.value = "category";
-              currentSelection.value = cat;
-            }}
-          >
-            {localize(cat)}
-          </button>
-        )).toArray()}
-        <p>By size:</p>
-        {sizes.map((size) => (
-          <button
-            type="button"
-            onClick={() => {
-              currentMode.value = "size";
-              currentSelection.value = size;
-            }}
-          >
-            {localizeSize(size)}
-          </button>
-        ))}
-      </nav>
-
+      <ThingFilters state={filterState} />
       <ol class="things">
-        {Object.values(things).map((thing) => {
-          if (!visible(thing)) return null;
-
-          const name = localize(thing.name);
-          const id = thing.id;
-          const emoji = file.game.swMonoCatch[thing.idx] ? "✔️" : "❌";
-
-          return <li key={id} data-id={id}>{emoji} {name}</li>;
-        })}
+        {Object.values(things).filter(filterState.visible.value).map(Thing)}
       </ol>
     </>
   );
+}
+
+function createThingFilterState() {
+  const mode = useSignal<Mode>("all");
+  const category = useSignal("");
+  const size = useSignal("");
+
+  const visible = computed(() => {
+    switch (mode.value) {
+      case "all":
+        return () => true;
+      case "category":
+        return (t: ThingData) => t.cat === category.value;
+      case "size":
+        return (t: ThingData) => t.s === size.value;
+    }
+  });
+
+  return { mode, category, size, visible };
+}
+
+function ThingFilters(props: { state: ThingFilterState }): JSX.Element {
+  const { state } = props;
+
+  return (
+    <>
+      <Radio
+        name="mode"
+        bind={state.mode}
+        defaultChoice="filter-all"
+        choices={{
+          "filter-all": { value: "all", label: "All" },
+          "filter-category": { value: "category", label: "Category" },
+          "filter-size": { value: "size", label: "Size" },
+        }}
+      />
+
+      {state.mode.value === "category" && (
+        <Select bind={state.category}>
+          {byCategory.keys().map((cat) => (
+            <option key={cat} value={cat}>{localize(cat)}</option>
+          )).toArray()}
+        </Select>
+      )}
+      {state.mode.value === "size" && (
+        <Select bind={state.size}>
+          {bySize.keys().toArray().toSorted().map((s) => (
+            <option key={s} value={s}>{localizeSize(s)}</option>
+          ))}
+        </Select>
+      )}
+    </>
+  );
+}
+
+function Thing(thing: ThingData): JSX.Element {
+  const name = localize(thing.name);
+  const id = thing.id;
+  const emoji = fileState.save.value?.game.swMonoCatch[thing.idx] ? "✔️" : "❌";
+
+  return <li key={id} data-id={id}>{emoji} {name}</li>;
 }
