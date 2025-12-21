@@ -31,15 +31,16 @@ export function Radio<T extends string | number>(
   const { name, bind, choices, defaultChoice } = props;
 
   return Object.entries(choices).map(([id, { value, label }]) => (
-    <div role="presentation">
+    <label for={id} class="radio-wrapper">
       <input
         type="radio"
         id={id}
         name={name}
-        onClick={() => bind.value = value}
+        onClick={() =>
+          bind.value = value}
         defaultChecked={id === defaultChoice}
       />
-      <label for={id}>{label}</label>
-    </div>
+      {label}
+    </label>
   ));
 }

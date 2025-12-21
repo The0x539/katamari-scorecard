@@ -57,15 +57,11 @@ const updateFile = (
   fileState.setSource(input.files?.[0]);
 };
 
-type Tab = "missions" | "things";
-const currentTab = signal<Tab>("missions");
-
 export function Scorecard(): JSX.Element {
   const link =
     "https://www.pcgamingwiki.com/wiki/Katamari_Damacy_Reroll#Save_game_data_location";
 
   const hasFile = useComputed(() => fileState.save.value !== null);
-  const save = fileState.save.value;
 
   return (
     <>
@@ -85,37 +81,44 @@ export function Scorecard(): JSX.Element {
       </Show>
       <KingOfAllCosmos />
       <Show when={hasFile}>
-        <Tabs />
-
-        {currentTab.value}
-
-        <Show when={() => currentTab.value === "missions"}>
-          <ol class="missions">
-            {save?.missions.map((m, i) => MissionEntry(i, m))}
-          </ol>
-        </Show>
-        <Show when={() => currentTab.value === "things"}>
-          <Things />
-        </Show>
-
-        <button type="button" onClick={() => console.dir(save)}>
-          Dump full decoded save file to console
-        </button>
+        <Body />
       </Show>
     </>
   );
 }
 
-function Tabs(): JSX.Element {
+type Tab = "missions" | "things";
+
+function Body(): JSX.Element {
+  const currentTab = useSignal<Tab>("missions");
+
   return (
-    <nav>
-      <button type="button" onClick={() => currentTab.value = "missions"}>
-        Missions
+    <>
+      <nav>
+        <Radio
+          name="view"
+          defaultChoice="view-missions"
+          bind={currentTab}
+          choices={{
+            "view-missions": { value: "missions", label: "Missions" },
+            "view-things": { value: "things", label: "Things" },
+          }}
+        />
+      </nav>
+
+      <Show when={() => currentTab.value === "missions"}>
+        <ol class="missions">
+          {fileState.save.value?.missions.map((m, i) => MissionEntry(i, m))}
+        </ol>
+      </Show>
+      <Show when={() => currentTab.value === "things"}>
+        <Things />
+      </Show>
+
+      <button type="button" onClick={() => console.dir(fileState.save.value)}>
+        Dump full decoded save file to console
       </button>
-      <button type="button" onClick={() => currentTab.value = "things"}>
-        Things
-      </button>
-    </nav>
+    </>
   );
 }
 

@@ -21,10 +21,40 @@
   background-size: auto 100vh;
 
   color-scheme: only dark;
+
+  --bg-blue: rgba(90, 152, 210, 0.2);
+  --fg-blue: rgb(90, 152, 210);
 }
 
 body {
   margin: 3rem;
+}
+
+nav {
+  display: flex;
+  gap: 1em;
+
+  justify-content: center;
+
+  > .radio-wrapper {
+    margin-block: 1rem;
+
+    padding: 0.75rem 1.5rem;
+    border-radius: 50vh;
+    background: var(--bg-blue);
+
+    font-size: 1.25rem;
+
+    & > input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    &:has(input:checked) {
+      outline: 2px solid var(--fg-blue);
+      outline-offset: 4px;
+    }
+  }
 }
 
 ol.missions {
@@ -41,7 +71,7 @@ ol.missions > li {
   max-height: 180px;
   width: 400px;
   padding: 1em;
-  background: rgba(90, 152, 210, 0.2);
+  background: var(--bg-blue);
   border-radius: 40px;
 
   flex-grow: 1;
@@ -60,7 +90,7 @@ ol.missions > li {
   }
 
   dt {
-    color: rgb(90, 152, 210);
+    color: var(--fg-blue);
     &::after {
       content: ':';
     }
@@ -82,6 +112,7 @@ ol.missions > li {
 king-of-all-cosmos {
   position: relative;
   display: block;
+  overflow-anchor: none;
 
   width: min-content;
   height: 20rem;
