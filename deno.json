@@ -1,7 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "tasks": {
-    "dump": "deno -R src/dump-strings.ts > src/strings.json",
+    "dump": "deno -R src/dump-strings.ts king_text > src/strings.json",
     "build": "deno run -A npm:@rsbuild/core build",
     "run": "deno run -A npm:@rsbuild/core dev"
   },
