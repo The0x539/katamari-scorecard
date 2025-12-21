@@ -1,9 +1,17 @@
-import kingbgColorPng from "./assets/kingbg-color.png";
-import kingbgColorWebp from "./assets/kingbg-color.webp";
-import kingbgColorJxl from "./assets/kingbg-color.jxl";
+import kingbgColorPng from "./assets/king-bg-color.png";
+import kingbgColorWebp from "./assets/king-bg-color.webp";
+import kingbgColorJxl from "./assets/king-bg-color.jxl";
+import kingFacePng from "./assets/king-face.png";
 
-export const kingbg_color = {
-  png: kingbgColorPng,
-  webp: kingbgColorWebp,
-  jxl: kingbgColorJxl,
+export const king = {
+  bg: {
+    color: {
+      png: kingbgColorPng,
+      webp: kingbgColorWebp,
+      jxl: kingbgColorJxl,
+    },
+  },
+  face: { png: kingFacePng },
 };
+
+export const kingbg_color = {};

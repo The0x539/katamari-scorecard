@@ -1,9 +1,17 @@
 import { render } from "preact";
 import { computed, effect, signal } from "@preact/signals";
-import type { ComponentChildren, JSX, TargetedInputEvent } from "preact";
+import { ComponentChildren, JSX, TargetedInputEvent } from "preact";
 import { Mission, SaveFile } from "./save-file.ts";
 
-import { kingbg_color } from "./assets.ts";
+import { king } from "./assets.ts";
+
+declare global {
+  namespace preact.createElement.JSX {
+    interface IntrinsicElements {
+      [elemName: string]: unknown;
+    }
+  }
+}
 
 import "./screen.css";
 
@@ -54,14 +62,17 @@ function MissionEntry(i: number, mission: Mission): JSX.Element | null {
     size = m + "m " + size;
   }
 
-  const seconds = Math.round(mission.clearTime / 30);
-  // const milliseconds = Math.round(mission.clearTime * 1000 / 30) % 1000;
-  const time = Temporal.Duration.from({ seconds })
-    .round({ largestUnit: "minutes", smallestUnit: "seconds" })
-    .toLocaleString();
+  let time = "";
+  try {
+    const seconds = Math.round(mission.clearTime / 30);
+    // const milliseconds = Math.round(mission.clearTime * 1000 / 30) % 1000;
+    time = Temporal.Duration.from({ seconds })
+      .round({ largestUnit: "minutes", smallestUnit: "seconds" })
+      .toLocaleString();
+  } catch { /**/ }
 
   const pairs: Record<string, ComponentChildren> = {
-    "Size": size,
+    "Diameter": size,
     "Time": time,
     "Present": mission.swPresent ? "🎁" : "🔎",
     "Objects": mission.clearCatchCount,
@@ -109,10 +120,10 @@ function MissionEntry(i: number, mission: Mission): JSX.Element | null {
       <h2>{name}</h2>
       <dl>
         {Object.entries(pairs).map(([k, v]) => (
-          <>
-            <dt>{k}</dt>
+          <div role="presentation">
+            <dt data-label={k}>{k}</dt>
             <dd>{v}</dd>
-          </>
+          </div>
         ))}
       </dl>
     </li>
@@ -148,19 +159,22 @@ function Scorecard(): JSX.Element | null {
       <p>
         Or drag+drop <a target="_blank" href={link}>your save file</a>
       </p>
-      <KingBg />
+      <KingOfAllCosmos />
       {body}
     </>
   );
 }
 
-function KingBg(): JSX.Element {
+function KingOfAllCosmos(): JSX.Element {
   return (
-    <picture>
-      <source srcset={kingbg_color.jxl} type="image/jxl" />
-      <source srcset={kingbg_color.webp} type="image/webp" />
-      <img src={kingbg_color.png} class="king-bg" />
-    </picture>
+    <king-of-all-cosmos>
+      <img class="face" src={king.face.png} />
+      <picture class="bg">
+        <source srcset={king.bg.color.jxl} type="image/jxl" />
+        <source srcset={king.bg.color.webp} type="image/webp" />
+        <img src={king.bg.color.png} />
+      </picture>
+    </king-of-all-cosmos>
   );
 }
 
