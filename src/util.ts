@@ -24,3 +24,11 @@ export function* range(
 export function swap<T>(arr: T[], i: number, j: number): void {
   [arr[i], arr[j]] = [arr[j], arr[i]];
 }
+
+export function map_push<K, V>(map: Map<K, V[]>, key: K, value: V) {
+  if (map.has(key)) {
+    map.get(key)!.push(value);
+  } else {
+    map.set(key, [value]);
+  }
+}

@@ -9,13 +9,29 @@ import rawThings from "./game-data/things.json" with { type: "json" };
 import { swap } from "./util.ts";
 swap(rawMissions, 3, 4);
 
+export type ThingData = ThingDigest & {
+  id: string;
+  idx: number;
+};
+
 const localization: KingTextDigest = rawLocalization;
 export const missions: MissionInfoDigest[] = rawMissions;
-export const things: Record<string, ThingDigest> = rawThings;
+export const things: Record<string, ThingData> = Object.fromEntries(
+  Object.entries(rawThings).map(([id, thing], idx) => {
+    return [id, { id, idx, ...thing }];
+  }),
+);
 
-export function localize(category: string, id: number): string | null {
-  if (id == null) return null;
-  const key = category + "_" + id.toString().padStart(3, "0");
+export function localize(key: string): string;
+export function localize(category: string, id: number): string;
+
+export function localize(category: string, id?: number): string {
+  if (id !== undefined) {
+    const key = category + "_" + id.toString().padStart(3, "0");
+    return localize(key);
+  }
+
+  const key = category;
   return localization[key]?.[1];
 }
 

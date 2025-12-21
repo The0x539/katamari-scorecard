@@ -1,10 +1,12 @@
-import { computed, effect, signal } from "@preact/signals";
+import { computed, effect, signal, useSignal } from "@preact/signals";
 
+import { localize, things } from "./data.ts";
 import { MissionEntry } from "./mission-entry.tsx";
 import { SaveFile } from "./save-file.ts";
 import { king } from "./assets.ts";
-import { swap } from "./util.ts";
+import { map_push, swap } from "./util.ts";
 
+import type { ThingData } from "./data.ts";
 import type { JSX, TargetedInputEvent } from "preact";
 
 export const theFile = signal<File | null>(null);
@@ -22,24 +24,32 @@ const saveFile = computed(() => {
   return save;
 });
 
-export function Scorecard(): JSX.Element | null {
+type Tab = "missions" | "things";
+const currentTab = signal<Tab>("missions");
+
+export function Scorecard(): JSX.Element {
   const file = saveFile.value;
 
   const link =
     "https://www.pcgamingwiki.com/wiki/Katamari_Damacy_Reroll#Save_game_data_location";
 
-  const body = file && (
-    <>
-      <h1>Missions</h1>
-      <ol class="missions">
-        {file.missions.map((m, i) => MissionEntry(i, m))}
-      </ol>
+  let body = null;
 
-      <button type="button" onClick={() => console.dir(file)}>
-        Dump full decoded save file to console
-      </button>
-    </>
-  );
+  if (file) {
+    switch (currentTab.value) {
+      case "missions": {
+        body = (
+          <ol class="missions">
+            {file.missions.map((m, i) => MissionEntry(i, m))}
+          </ol>
+        );
+        break;
+      }
+      case "things": {
+        body = <Things />;
+      }
+    }
+  }
 
   const updateFile = (e: TargetedInputEvent<HTMLInputElement>) => {
     theFile.value = e.currentTarget.files![0];
@@ -47,13 +57,33 @@ export function Scorecard(): JSX.Element | null {
 
   return (
     <>
+      <h1>Katamari Scorecard</h1>
       <input type="file" onInput={updateFile} />
       <p>
         Or drag+drop <a target="_blank" href={link}>your save file</a>
       </p>
       <KingOfAllCosmos />
+      {file && <Tabs />}
       {body}
+      {file && (
+        <button type="button" onClick={() => console.dir(file)}>
+          Dump full decoded save file to console
+        </button>
+      )}
     </>
+  );
+}
+
+function Tabs(): JSX.Element {
+  return (
+    <nav>
+      <button type="button" onClick={() => currentTab.value = "missions"}>
+        Missions
+      </button>
+      <button type="button" onClick={() => currentTab.value = "things"}>
+        Things
+      </button>
+    </nav>
   );
 }
 
@@ -67,5 +97,76 @@ function KingOfAllCosmos(): JSX.Element {
         <img src={king.bg.color.png} />
       </picture>
     </king-of-all-cosmos>
+  );
+}
+
+function localizeSize(s: string): string {
+  const sizeID = parseInt(s, 36) - 1;
+  return localize("UI_NIC", sizeID);
+}
+
+const byCategory = new Map<string, ThingData[]>();
+const bySize = new Map<string, ThingData[]>();
+
+for (const thing of Object.values(things)) {
+  map_push(byCategory, thing.cat, thing);
+  map_push(bySize, thing.s, thing);
+}
+
+const sizes = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"];
+
+function Things(): JSX.Element {
+  const file = saveFile.value!;
+
+  const currentMode = useSignal<"category" | "size">("category");
+  const currentSelection = useSignal<string>(
+    Object.values(things)[1].cat,
+  );
+
+  const visible = currentMode.value === "category"
+    ? (t: ThingData) => t.cat === currentSelection.value
+    : (t: ThingData) => t.s === currentSelection.value;
+
+  return (
+    <>
+      <nav>
+        <p>By category:</p>
+        {byCategory.keys().filter((c) => c).map((cat) => (
+          <button
+            type="button"
+            onClick={() => {
+              currentMode.value = "category";
+              currentSelection.value = cat;
+            }}
+          >
+            {localize(cat)}
+          </button>
+        )).toArray()}
+        <p>By size:</p>
+        {sizes.map((size) => (
+          <button
+            type="button"
+            onClick={() => {
+              currentMode.value = "size";
+              currentSelection.value = size;
+            }}
+          >
+            {localizeSize(size)}
+          </button>
+        ))}
+      </nav>
+
+      <ol class="things">
+        {Object.values(things).map((thing) => {
+          if (!visible(thing)) return null;
+
+          const name = localize(thing.name);
+          const id = thing.id;
+          const emoji = file.game.swMonoCatch[thing.idx] ? "✔️" : "❌";
+
+          return <li key={id} data-id={id}>{emoji} {name}</li>;
+        })}
+      </ol>
+    </>
   );
 }

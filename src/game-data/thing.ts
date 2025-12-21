@@ -38,6 +38,7 @@ export class Thing {
       size: t.size,
       spot: t.spotID,
       rare: t.rare,
+      cat: t.categoryID,
       s: t.sizeID,
     }]));
   }
@@ -49,6 +50,8 @@ export type ThingDigest = {
   size: string;
   spot: string;
   rare: boolean;
+  /** Category ID */
+  cat: string;
   /** Size category ID */
   s: string;
 };
