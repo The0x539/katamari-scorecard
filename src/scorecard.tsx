@@ -1,4 +1,12 @@
-import { computed, effect, signal, useSignal } from "@preact/signals";
+import {
+  computed,
+  effect,
+  signal,
+  useComputed,
+  useSignal,
+} from "@preact/signals";
+import { Show } from "@preact/signals/utils";
+import { useRef } from "preact/hooks";
 
 import { localize, things } from "./data.ts";
 import { MissionEntry } from "./mission-entry.tsx";
@@ -7,15 +15,18 @@ import { king } from "./assets.ts";
 import { map_push, swap } from "./util.ts";
 
 import type { ThingData } from "./data.ts";
-import type { JSX, TargetedInputEvent } from "preact";
+import type { JSX } from "preact";
 
 export const theFile = signal<File | null>(null);
 
 const buffer = signal(new ArrayBuffer());
 
-effect(() => {
-  theFile.value?.arrayBuffer().then((b: ArrayBuffer) => buffer.value = b);
-});
+const reloadFile = async () => {
+  if (!theFile.value) return;
+  buffer.value = await theFile.value.arrayBuffer();
+};
+
+effect(() => void reloadFile());
 
 const saveFile = computed(() => {
   if (buffer.value.byteLength === 0) return null;
@@ -29,6 +40,7 @@ const currentTab = signal<Tab>("missions");
 
 export function Scorecard(): JSX.Element {
   const file = saveFile.value;
+  const hasFile = useComputed(() => saveFile.value !== null);
 
   const link =
     "https://www.pcgamingwiki.com/wiki/Katamari_Damacy_Reroll#Save_game_data_location";
@@ -51,17 +63,22 @@ export function Scorecard(): JSX.Element {
     }
   }
 
-  const updateFile = (e: TargetedInputEvent<HTMLInputElement>) => {
-    theFile.value = e.currentTarget.files![0];
+  const theInput = useRef<HTMLInputElement | null>(null);
+
+  const updateFile = () => {
+    theFile.value = theInput.current?.files?.[0] ?? null;
   };
 
   return (
     <>
       <h1>Katamari Scorecard</h1>
-      <input type="file" onInput={updateFile} />
+      <input type="file" ref={theInput} onInput={updateFile} />
       <p>
         Or drag+drop <a target="_blank" href={link}>your save file</a>
       </p>
+      <Show when={hasFile}>
+        <button type="button" onClick={reloadFile}>Reload</button>
+      </Show>
       <KingOfAllCosmos />
       {file && <Tabs />}
       {body}
