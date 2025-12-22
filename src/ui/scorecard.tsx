@@ -8,14 +8,14 @@ import {
 import { CSSTransition } from "preact-transitioning";
 import { Show } from "@preact/signals/utils";
 
-import { localize, things } from "./data.ts";
+import { localize, things } from "../data.ts";
 import { MissionEntry } from "./mission-entry.tsx";
-import { SaveFile } from "./save-file.ts";
-import { king } from "./assets.ts";
-import { swap } from "./util.ts";
+import { SaveFile } from "../save-file.ts";
+import { king } from "../assets.ts";
+import { swap } from "../util.ts";
 import { Radio, Select } from "./controls.tsx";
 
-import type { ThingData } from "./data.ts";
+import type { ThingData } from "../data.ts";
 import type { JSX, TargetedInputEvent } from "preact";
 import type { ReadonlySignal, Signal } from "@preact/signals";
 

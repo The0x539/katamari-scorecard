@@ -1,6 +1,6 @@
 import type { ComponentChildren, JSX } from "preact";
-import { cowbearData, localize, missions } from "./data.ts";
-import type { SaveMission } from "./save-file.ts";
+import { cowbearData, localize, missions } from "../data.ts";
+import type { SaveMission } from "../save-file.ts";
 
 function formatSize(size: number): string {
   if (size === 0) return "0";

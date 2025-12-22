@@ -1,5 +1,5 @@
 import { createElement, render } from "preact";
-import { fileState, Scorecard } from "./scorecard.tsx";
+import { fileState, Scorecard } from "./ui/scorecard.tsx";
 
 import "./screen.css";
 
