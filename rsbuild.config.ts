@@ -18,6 +18,14 @@ export default defineConfig({
   },
   plugins: [
     pluginPreact(),
-    pluginTypeCheck(),
+    pluginTypeCheck({
+      tsCheckerOptions: {
+        typescript: {
+          configOverwrite: {
+            exclude: ["./src/dump-strings.ts"],
+          },
+        },
+      },
+    }),
   ],
 });
