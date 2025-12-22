@@ -9,8 +9,7 @@ export function MissionEntry(
   const nameID = missions[i]?.name;
   if (!nameID) return null;
 
-  // it's MY tool and I get to make the rules
-  const name = localize("UI_ERT", nameID)!.replace("the North Star", "Polaris");
+  const name = localize("UI_ERT", nameID);
 
   let size = (mission.clearSize % 10) + "mm";
   if (mission.clearSize > 10) {
