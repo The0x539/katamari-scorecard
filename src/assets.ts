@@ -13,5 +13,3 @@ export const king = {
   },
   face: { png: kingFacePng },
 };
-
-export const kingbg_color = {};

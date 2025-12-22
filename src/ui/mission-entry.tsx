@@ -18,15 +18,11 @@ function formatSize(size: number): string {
 }
 
 function formatTime(seconds: number): string {
-  try {
-    seconds = Math.floor(seconds);
-    // const milliseconds = Math.round(seconds * 1000) % 1000;
-    return Temporal.Duration.from({ seconds })
-      .round({ largestUnit: "minutes", smallestUnit: "seconds" })
-      .toLocaleString();
-  } catch {
-    return "";
-  }
+  seconds = Math.floor(seconds);
+  // const milliseconds = Math.round(seconds * 1000) % 1000;
+  return Temporal.Duration.from({ seconds })
+    .round({ largestUnit: "minutes", smallestUnit: "seconds" })
+    .toLocaleString();
 }
 
 export function MissionEntry(

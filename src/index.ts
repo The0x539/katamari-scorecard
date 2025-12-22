@@ -3,12 +3,8 @@ import { fileState, Scorecard } from "./ui/scorecard.tsx";
 
 import "./screen.css";
 
-declare global {
-  namespace preact.JSX {
-    interface IntrinsicElements {
-      [elemName: string]: unknown;
-    }
-  }
+if (!window.Temporal) {
+  await import("temporal-polyfill/global");
 }
 
 document.addEventListener("DOMContentLoaded", () => {
