@@ -96,6 +96,7 @@ export class MissionInfo {
     return data.map((m, i) => ({
       time: m.gameTime,
       meteor: m.meteor,
+      super: m.rating_diameter[3],
       ...extraData[i],
     }));
   }
@@ -104,6 +105,7 @@ export class MissionInfo {
 export type MissionInfoDigest = {
   time: number;
   meteor: number;
+  super: number;
   name?: number;
   max?: number;
 };

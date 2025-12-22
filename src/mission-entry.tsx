@@ -2,6 +2,33 @@ import type { ComponentChildren, JSX } from "preact";
 import { cowbearData, localize, missions } from "./data.ts";
 import type { SaveMission } from "./save-file.ts";
 
+function formatSize(size: number): string {
+  if (size === 0) return "0";
+  const units = {
+    mm: size % 10,
+    cm: Math.floor(size / 10) % 100,
+    m: Math.floor(size / 1000),
+  };
+
+  const parts = [];
+  if (units.m > 0) parts.push(units.m + "m");
+  if (units.cm > 0 || units.m > 0) parts.push(units.cm + "cm");
+  if (units.mm > 0) parts.push(units.mm + "mm");
+  return parts.join(" ");
+}
+
+function formatTime(seconds: number): string {
+  try {
+    seconds = Math.floor(seconds);
+    // const milliseconds = Math.round(seconds * 1000) % 1000;
+    return Temporal.Duration.from({ seconds })
+      .round({ largestUnit: "minutes", smallestUnit: "seconds" })
+      .toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
 export function MissionEntry(
   i: number,
   mission: SaveMission,
@@ -11,38 +38,26 @@ export function MissionEntry(
 
   const name = localize("UI_ERT", nameID);
 
-  let size = (mission.clearSize % 10) + "mm";
-  if (mission.clearSize > 10) {
-    const cm = Math.floor(mission.clearSize / 10) % 100;
-    size = cm + "cm " + size;
-  }
-  if (mission.clearSize > 1000) {
-    const m = Math.floor(mission.clearSize / 1000);
-    size = m + "m " + size;
-  }
-
-  let time = "";
-  try {
-    const seconds = Math.round(mission.clearTime / 30);
-    // const milliseconds = Math.round(mission.clearTime * 1000 / 30) % 1000;
-    time = Temporal.Duration.from({ seconds })
-      .round({ largestUnit: "minutes", smallestUnit: "seconds" })
-      .toLocaleString();
-  } catch { /**/ }
-
   const pairs: Record<string, ComponentChildren> = {
-    "Diameter": size,
-    "Clear time": time,
+    "Diameter": formatSize(mission.clearSize),
+    "Clear time": formatTime(mission.clearTime / 30),
     "Clear count": mission.clearCount,
     "Present": mission.swPresent ? "🎁" : "🔎",
     "Objects": mission.clearCatchCount,
   };
+
+  if (mission.rating < 5) {
+    pairs["Super Clear"] = formatSize(missions[i].super * 10);
+    pairs["Rating"] = mission.rating;
+  }
 
   if (mission.catchRanking[0]) {
     pairs["Ranking"] = localize("OT_STR", mission.catchRanking[0]);
   }
 
   if (mission.nameA) {
+    delete pairs["Super Clear"];
+
     const data = cowbearData.get(mission.nameA);
     if (data) {
       const name = localize("OT_CON", data?.resultName);
@@ -53,6 +68,11 @@ export function MissionEntry(
 
   if (mission.catchCountB > 1) {
     let count = mission.catchCountB.toString();
+
+    // dumb hack but this whole building process is due for a reorganization
+    if (pairs["Super Clear"]) {
+      pairs["Super Clear"] = missions[i].super;
+    }
 
     const max = missions[i].max;
     if (max) {
@@ -77,6 +97,8 @@ export function MissionEntry(
 
   if (mission.fallenStarCount) {
     pairs["Meteor"] = localize("OT_STR", mission.fallenStarName);
+  } else {
+    pairs["Shooting Star time"] = formatTime(missions[i].meteor * 60);
   }
 
   return (
