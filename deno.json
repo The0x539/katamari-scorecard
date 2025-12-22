@@ -14,7 +14,8 @@
     "@rsbuild/core": "npm:@rsbuild/core@^1.6.15",
     "@rsbuild/plugin-preact": "npm:@rsbuild/plugin-preact@^1.6.0",
     "@std/fs": "jsr:@std/fs@^1.0.20",
-    "preact": "npm:preact@^10.28.0"
+    "preact": "npm:preact@^10.28.0",
+    "preact-transitioning": "npm:preact-transitioning@^1.5.3"
   },
   "compilerOptions": {
     "module": "esnext",

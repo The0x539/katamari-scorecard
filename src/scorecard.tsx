@@ -5,6 +5,7 @@ import {
   useComputed,
   useSignal,
 } from "@preact/signals";
+import { CSSTransition } from "preact-transitioning";
 import { Show } from "@preact/signals/utils";
 
 import { localize, things } from "./data.ts";
@@ -78,6 +79,9 @@ export function Scorecard(): JSX.Element {
         <button type="button" onClick={() => fileState.refreshBuffer()}>
           Reload
         </button>
+        <button type="button" onClick={() => console.dir(fileState.save.value)}>
+          Dump full decoded save file to console
+        </button>
       </Show>
       <KingOfAllCosmos />
       <Show when={hasFile}>
@@ -87,10 +91,19 @@ export function Scorecard(): JSX.Element {
   );
 }
 
-type Tab = "missions" | "things";
+type Tab = "missions" | "collection";
 
 function Body(): JSX.Element {
   const currentTab = useSignal<Tab>("missions");
+
+  const pages: Record<Tab, JSX.Element> = {
+    missions: (
+      <ol class="missions">
+        {fileState.save.value?.missions.map((m, i) => MissionEntry(i, m))}
+      </ol>
+    ),
+    collection: <Collection />,
+  };
 
   return (
     <>
@@ -101,23 +114,20 @@ function Body(): JSX.Element {
           bind={currentTab}
           choices={{
             "view-missions": { value: "missions", label: "Missions" },
-            "view-things": { value: "things", label: "Things" },
+            "view-collection": { value: "collection", label: "Collection" },
           }}
         />
       </nav>
 
-      <Show when={() => currentTab.value === "missions"}>
-        <ol class="missions">
-          {fileState.save.value?.missions.map((m, i) => MissionEntry(i, m))}
-        </ol>
-      </Show>
-      <Show when={() => currentTab.value === "things"}>
-        <Things />
-      </Show>
-
-      <button type="button" onClick={() => console.dir(fileState.save.value)}>
-        Dump full decoded save file to console
-      </button>
+      {Object.entries(pages).map(([tab, elem]) => (
+        <CSSTransition
+          in={currentTab.value === tab}
+          duration={750}
+          classNames="anim"
+        >
+          <main class={tab}>{elem}</main>
+        </CSSTransition>
+      ))}
     </>
   );
 }
@@ -169,13 +179,13 @@ const collection = (() => {
 })();
 
 type Mode = "all" | "category" | "size";
-type ThingFilterState = {
+type CollectionFilterState = {
   mode: Signal<Mode>;
   category: Signal<string>;
   size: Signal<string>;
 };
 
-function Things(): JSX.Element {
+function Collection(): JSX.Element {
   const filterState = createThingFilterState();
 
   const currentList = useComputed(() => {
@@ -191,7 +201,7 @@ function Things(): JSX.Element {
 
   return (
     <>
-      <ThingFilters state={filterState} />
+      <CollectionFilters state={filterState} />
       <ol class="things">
         {currentList.value.map(Thing)}
       </ol>
@@ -207,7 +217,9 @@ function createThingFilterState() {
   return { mode, category, size };
 }
 
-function ThingFilters(props: { state: ThingFilterState }): JSX.Element {
+function CollectionFilters(
+  props: { state: CollectionFilterState },
+): JSX.Element {
   const { state } = props;
 
   return (

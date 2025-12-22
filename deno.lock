@@ -10,6 +10,7 @@
     "npm:@rsbuild/plugin-preact@^1.6.0": "1.6.0_@rsbuild+core@1.6.15__@swc+helpers@0.5.17_preact@10.28.0_@prefresh+core@1.5.9__preact@10.28.0_@prefresh+utils@1.2.1",
     "npm:@types/node@*": "24.2.0",
     "npm:esbuild@*": "0.25.11",
+    "npm:preact-transitioning@^1.5.3": "1.5.3_preact@10.28.0",
     "npm:preact@10": "10.28.0",
     "npm:preact@^10.28.0": "10.28.0"
   },
@@ -421,6 +422,12 @@
       "integrity": "sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==",
       "bin": true
     },
+    "preact-transitioning@1.5.3_preact@10.28.0": {
+      "integrity": "sha512-UkOTvZJ5jRcuCpSFv2sUOjjO1UQdKMSQN9U3pPfz8RFDo32CCHTcjcsiJWFzmDoYsMxQz7iuIrrVTio+U9W57A==",
+      "dependencies": [
+        "preact"
+      ]
+    },
     "preact@10.28.0": {
       "integrity": "sha512-rytDAoiXr3+t6OIP3WGlDd0ouCUG1iCWzkcY3++Nreuoi17y6T5i/zRhe6uYfoVcxq6YU+sBtJouuRDsq8vvqA=="
     },
@@ -437,6 +444,7 @@
       "npm:@preact/signals@^2.5.1",
       "npm:@rsbuild/core@^1.6.15",
       "npm:@rsbuild/plugin-preact@^1.6.0",
+      "npm:preact-transitioning@^1.5.3",
       "npm:preact@^10.28.0"
     ]
   }
