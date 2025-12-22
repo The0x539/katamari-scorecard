@@ -6,7 +6,6 @@ export default defineConfig({
     template: "./src/index.html",
   },
   output: {
-    // assetPrefix: "/~the0x539/katamari",
     cleanDistPath: true,
   },
   source: {
