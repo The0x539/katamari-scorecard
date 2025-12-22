@@ -211,8 +211,8 @@ function Collection(): JSX.Element {
 
 function createThingFilterState() {
   const mode = useSignal<Mode>("all");
-  const category = useSignal("");
-  const size = useSignal("");
+  const category = useSignal(collection.categories[0]);
+  const size = useSignal(collection.sizes[0]);
 
   return { mode, category, size };
 }
@@ -222,32 +222,82 @@ function CollectionFilters(
 ): JSX.Element {
   const { state } = props;
 
+  const caught = fileState.save.value!.game.swMonoCatch;
+
+  const radioItem = (
+    key: string,
+    name: string,
+    groups: Map<string, ThingData[]>,
+  ) => {
+    const group = groups.get(key)!;
+    const collected = group.filter((t) => caught[t.idx]).length;
+    const total = group.length;
+
+    const obj = {
+      value: key,
+      label: `${name}: ${collected} / ${total}`,
+      css: collected === total ? "complete" : undefined,
+    };
+    return [key, obj];
+  };
+
+  const optionItem = (
+    key: string,
+    name: string,
+    groups: Map<string, ThingData[]>,
+  ) => {
+    const group = groups.get(key)!;
+    const collected = group.filter((t) => caught[t.idx]).length;
+    const total = group.length;
+
+    return (
+      <option
+        key={key}
+        value={key}
+        class={collected === total ? "complete" : undefined}
+      >
+        {name}: {collected} / {total}
+      </option>
+    );
+  };
+
+  const categoryLabel = (cat: string) =>
+    optionItem(cat, localize(cat), collection.byCategory);
+
+  const sizeLabel = (s: string) =>
+    radioItem(s, localizeSize(s), collection.bySize);
+
   return (
     <>
-      <Radio
-        name="mode"
-        bind={state.mode}
-        defaultChoice="filter-all"
-        choices={{
-          "filter-all": { value: "all", label: "Everything" },
-          "filter-category": { value: "category", label: "Category" },
-          "filter-size": { value: "size", label: "Size" },
-        }}
-      />
+      <div role="radiogroup">
+        <Radio
+          name="mode"
+          bind={state.mode}
+          defaultChoice="filter-all"
+          choices={{
+            "filter-all": { value: "all", label: "Everything" },
+            "filter-category": { value: "category", label: "Category" },
+            "filter-size": { value: "size", label: "Size" },
+          }}
+        />
+      </div>
 
       {state.mode.value === "category" && (
         <Select bind={state.category}>
-          {collection.categories.map((cat) => (
-            <option key={cat} value={cat}>{localize(cat)}</option>
-          ))}
+          {collection.categories.map(categoryLabel)}
         </Select>
       )}
       {state.mode.value === "size" && (
-        <Select bind={state.size}>
-          {collection.sizes.map((s) => (
-            <option key={s} value={s}>{localizeSize(s)}</option>
-          ))}
-        </Select>
+        <div role="radiogroup">
+          <Radio
+            name="category"
+            bind={state.size}
+            defaultChoice={collection.sizes[0]}
+            choices={Object.fromEntries(
+              collection.sizes.map(sizeLabel),
+            )}
+          />
+        </div>
       )}
     </>
   );

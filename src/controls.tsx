@@ -25,13 +25,14 @@ export function Radio<T extends string | number>(
     choices: Record<string, {
       value: T;
       label: string;
+      css?: string;
     }>;
   },
 ): JSX.Element[] {
   const { name, bind, choices, defaultChoice } = props;
 
-  return Object.entries(choices).map(([id, { value, label }]) => (
-    <label for={id} class="radio-wrapper">
+  return Object.entries(choices).map(([id, { value, label, css }]) => (
+    <label for={id} class={"radio-wrapper " + css}>
       <input
         type="radio"
         id={id}
