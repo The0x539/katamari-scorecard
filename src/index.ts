@@ -2,6 +2,7 @@ import { createElement, render } from "preact";
 
 import { fileState, Scorecard } from "./ui/scorecard.tsx";
 import { dataReady } from "./data.ts";
+import { handleFolder, isDirectory } from "./filesystem-descent.tsx";
 
 import "./screen.css";
 
@@ -31,10 +32,18 @@ document.addEventListener("drop", (e: DragEvent) => {
 
   for (let i = 0; i < list.length; i++) {
     const file = list[i].getAsFile();
-    if (file) {
-      e.preventDefault();
-      fileState.setSource(file);
-      break;
+    if (!file) {
+      continue;
     }
+
+    const entry = list[i].webkitGetAsEntry?.();
+    if (isDirectory(entry)) {
+      handleFolder(entry);
+    } else {
+      fileState.setSource(file);
+    }
+    e.preventDefault();
+
+    break;
   }
 });
