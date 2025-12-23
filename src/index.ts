@@ -1,13 +1,15 @@
 import { createElement, render } from "preact";
+
 import { fileState, Scorecard } from "./ui/scorecard.tsx";
+import { dataReady } from "./data.ts";
 
 import "./screen.css";
 
-if (!window.Temporal) {
+if (!window["Temporal"]) {
   await import("temporal-polyfill/global");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+dataReady.then(() => {
   render(createElement(Scorecard, {}), document.body);
 });
 

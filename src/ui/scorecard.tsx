@@ -8,7 +8,7 @@ import {
 import { CSSTransition } from "preact-transitioning";
 import { Show } from "@preact/signals/utils";
 
-import { localize, things } from "../data.ts";
+import { dataReady, localize, things } from "../data.ts";
 import { MissionEntry } from "./mission-entry.tsx";
 import { SaveFile } from "../save-file.ts";
 import { king } from "../assets.ts";
@@ -150,13 +150,14 @@ function localizeSize(s: string): string {
   return localize("UI_NIC", sizeID);
 }
 
-const collection = (() => {
+function collateCollection() {
   const thingList = Object.values(things);
 
   const gather = (
     f: (t: ThingData) => string,
   ): [string[], Map<string, ThingData[]>] => {
-    const list = new Set(thingList.map(f).filter((x) => x)).keys().toArray();
+    const set = new Set(thingList.map(f).filter((x) => x));
+    const list = [...set.keys()];
     list.sort();
 
     const groups = new Map<string, ThingData[]>();
@@ -176,7 +177,10 @@ const collection = (() => {
     sizes,
     bySize,
   };
-})();
+}
+
+let collection: ReturnType<typeof collateCollection>;
+dataReady.then(() => collection = collateCollection());
 
 type Mode = "all" | "category" | "size";
 type CollectionFilterState = {

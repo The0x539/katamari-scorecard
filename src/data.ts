@@ -2,25 +2,46 @@ import type { KingTextDigest } from "./game-data/king-text.ts";
 import type { MissionInfoDigest } from "./game-data/mission-info.ts";
 import type { ThingDigest } from "./game-data/thing.ts";
 
-import rawLocalization from "./game-data/locale.json" with { type: "json" };
-import rawMissions from "./game-data/missions.json" with { type: "json" };
-import rawThings from "./game-data/things.json" with { type: "json" };
-
 import { swap } from "./util.ts";
-swap(rawMissions, 3, 4);
+
+const jsonURLs = {
+  locale: new URL("./game-data/locale.json", import.meta.url),
+  things: new URL("./game-data/things.json", import.meta.url),
+  missions: new URL("./game-data/missions.json", import.meta.url),
+};
+
+async function loadJSON<T = never>(url: URL): Promise<T> {
+  const response = await fetch(url);
+  const body = await response.json();
+  return body;
+}
+
+export let missions: MissionInfoDigest[];
+export let localization: KingTextDigest;
+export let things: Record<string, ThingData>;
+
+export const dataReady = Promise.allSettled([
+  loadJSON(jsonURLs.locale).then((l) => localization = l),
+  loadJSON(jsonURLs.things).then((t) => (hydrateThings(t), things = t)),
+  loadJSON<MissionInfoDigest[]>(jsonURLs.missions)
+    .then((m) => (swap(m, 3, 4), missions = m)),
+]);
 
 export type ThingData = ThingDigest & {
   id: string;
   idx: number;
 };
 
-const localization: KingTextDigest = rawLocalization;
-export const missions: MissionInfoDigest[] = rawMissions;
-export const things: Record<string, ThingData> = Object.fromEntries(
-  Object.entries(rawThings).map(([id, thing], idx) => {
-    return [id, { id, idx, ...thing }];
-  }),
-);
+function hydrateThings(
+  things: Record<string, ThingData>,
+): Record<string, ThingData> {
+  let idx = 0;
+  for (const id in things) {
+    things[id].id = id;
+    things[id].idx = idx++;
+  }
+  return things;
+}
 
 export function localize(key: string): string;
 export function localize(category: string, id: number): string;
