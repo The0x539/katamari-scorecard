@@ -34,6 +34,7 @@ class FileState {
 
   constructor() {
     effect(() => void this.refreshBuffer());
+    setInterval(() => this.refreshBuffer(), 15000);
   }
 
   setSource(file: File | null | undefined): void {
@@ -76,9 +77,6 @@ export function Scorecard(): JSX.Element {
         Or drag+drop <a target="_blank" href={link}>your save file</a>
       </p>
       <Show when={hasFile}>
-        <button type="button" onClick={() => fileState.refreshBuffer()}>
-          Reload
-        </button>
         <button type="button" onClick={() => console.dir(fileState.save.value)}>
           Dump full decoded save file to console
         </button>
