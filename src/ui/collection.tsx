@@ -77,7 +77,7 @@ export function Collection(): JSX.Element {
 }
 
 function createThingFilterState() {
-  const mode = useSignal<Mode>("all");
+  const mode = useSignal<Mode>("category");
   const category = useSignal(collection.categories[0]);
   const size = useSignal(collection.sizes[0]);
 
@@ -140,7 +140,7 @@ function CollectionFilters(
         <Radio
           name="mode"
           bind={state.mode}
-          defaultChoice="filter-all"
+          defaultChoice="filter-category"
           choices={{
             "filter-all": { value: "all", label: "Everything" },
             "filter-category": { value: "category", label: "Category" },
@@ -173,7 +173,34 @@ function CollectionFilters(
 function Thing(thing: ThingData): JSX.Element {
   const name = localize(thing.name);
   const id = thing.id;
-  const emoji = fileState.save.value?.game.swMonoCatch[thing.idx] ? "✔️" : "❌";
 
-  return <li key={id} data-id={id}>{emoji} {name}</li>;
+  const got = !!fileState.save.value?.game.swMonoCatch[thing.idx];
+
+  return (
+    <li key={id} data-id={id}>
+      <h2>{name}</h2>
+      {got && <span class="marker">✓</span>}
+      <dl>
+        {thing.cat && (
+          <>
+            <dt>Category</dt>
+            <dd>{localize(thing.cat)}</dd>
+          </>
+        )}
+        {thing.spot && (
+          <>
+            <dt>Location</dt>
+            <dd title={thing.spot}>{localize(thing.spot)}</dd>
+          </>
+        )}
+        {thing.size && (
+          <>
+            <dt>Size to roll up</dt>
+            <dd class="size">{thing.size}</dd>
+          </>
+        )}
+      </dl>
+      {localize(thing.desc) && <p>{localize(thing.desc)}</p>}
+    </li>
+  );
 }

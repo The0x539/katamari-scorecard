@@ -155,12 +155,84 @@ ol.missions > li {
     margin-inline-start: 1em;
   }
 
-  dt[data-label="Diameter"] + dd {
-    font-family: katamari_size, sans-serif;
-  }
-
   dd ol {
     padding-inline-start: 1em;
+  }
+}
+
+dt[data-label="Diameter"] + dd,
+dd.size {
+  font-family: katamari_size, sans-serif;
+}
+
+ol.things {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+
+  &:has(> :nth-child(1500)) {
+    display: block;
+
+    > li {
+      margin-block: 1rem;
+    }
+  }
+
+  > li {
+    list-style: none;
+    width: 400px;
+    background: var(--bg-blue);
+    padding: 0.5rem;
+    position: relative;
+
+    border-radius: 40px;
+
+    > h2 {
+      text-align: center;
+      margin: 0.5rem;
+    }
+
+    &:has(> .marker) {
+      background: var(--bg-green);
+    }
+
+    > .marker {
+      position: absolute;
+      inset-block-start: 0.5rem;
+      inset-inline-end: 1.75rem;
+      color: lime;
+      opacity: 0.4;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    > dl {
+      display: flex;
+      justify-content: center;
+      margin-block: 0.75rem;
+
+      > dt {
+        width: 0;
+        height: 0;
+        overflow: hidden;
+      }
+
+      > dd {
+        margin: 0;
+
+        &:not(:first-of-type)::before {
+          margin: 0.5rem;
+          content: '•'
+        }
+      }
+    }
+
+    > p {
+      margin: 0.5rem;
+      text-wrap: balance;
+      text-align: center;
+    }
   }
 }
 
