@@ -32,11 +32,14 @@ function collateCollection() {
 
   const [categories, byCategory] = gather((t) => t.cat);
   const [sizes, bySize] = gather((t) => t.s);
+  const [locations, byLocation] = gather((t) => t.spot);
 
   return {
     all: thingList,
     categories,
     byCategory,
+    locations,
+    byLocation,
     sizes,
     bySize,
   };
@@ -45,10 +48,11 @@ function collateCollection() {
 let collection: ReturnType<typeof collateCollection>;
 dataReady.then(() => collection = collateCollection());
 
-type Mode = "all" | "category" | "size";
+type Mode = "all" | "category" | "location" | "size";
 type CollectionFilterState = {
   mode: Signal<Mode>;
   category: Signal<string>;
+  location: Signal<string>;
   size: Signal<string>;
 };
 
@@ -61,6 +65,8 @@ export function Collection(): JSX.Element {
         return collection.all;
       case "category":
         return collection.byCategory.get(filterState.category.value) ?? [];
+      case "location":
+        return collection.byLocation.get(filterState.location.value) ?? [];
       case "size":
         return collection.bySize.get(filterState.size.value) ?? [];
     }
@@ -79,9 +85,10 @@ export function Collection(): JSX.Element {
 function createThingFilterState() {
   const mode = useSignal<Mode>("category");
   const category = useSignal(collection.categories[0]);
+  const location = useSignal(collection.locations[0]);
   const size = useSignal(collection.sizes[0]);
 
-  return { mode, category, size };
+  return { mode, category, location, size };
 }
 
 function CollectionFilters(
@@ -131,6 +138,9 @@ function CollectionFilters(
   const categoryLabel = (cat: string) =>
     optionItem(cat, localize(cat), collection.byCategory);
 
+  const locationLabel = (spot: string) =>
+    optionItem(spot, localize(spot), collection.byLocation);
+
   const sizeLabel = (s: string) =>
     radioItem(s, localizeSize(s), collection.bySize);
 
@@ -144,6 +154,7 @@ function CollectionFilters(
           choices={{
             "filter-all": { value: "all", label: "Everything" },
             "filter-category": { value: "category", label: "Category" },
+            "filter-location": { value: "location", label: "Location" },
             "filter-size": { value: "size", label: "Size" },
           }}
         />
@@ -152,6 +163,13 @@ function CollectionFilters(
       {state.mode.value === "category" && (
         <Select bind={state.category}>
           {collection.categories.map(categoryLabel)}
+        </Select>
+      )}
+      {state.mode.value === "location" && (
+        // TODO: group the categories like ingame.
+        // I'm not sure how that data is stored.
+        <Select bind={state.location}>
+          {collection.locations.map(locationLabel)}
         </Select>
       )}
       {state.mode.value === "size" && (
