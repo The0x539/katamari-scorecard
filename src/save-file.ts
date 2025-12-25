@@ -4,24 +4,46 @@ export class SaveFile {
   moonMaxSize: number;
   kataMaxSize: number;
 
+  /** Individual mission progress. */
   missions: SaveMission[];
 
+  /** Overall game progress. */
   game: Game;
 
+  /** Vibration, per player. */
   isVibration: [boolean, boolean];
+  /** Stereo audio. */
   isStereo: boolean;
+  /** Music volume. */
   bgmVolume: number;
+  /** SFX volume. */
   seVolume: number;
+  /** Control scheme, per player. 1 is "simple controls"; 2 is "motion controls". */
   moveType: [number, number];
+  /** The save date, represented as YYYY/MM/DD. */
   saveYmd: string;
+  /** The save time, represented as HH:MM. */
   saveTime: string;
 
+  /** The same thing! This was the very first thing We ever rolled up! */
   sw1stMakikomi: number;
+  /** The same thing! This was the very first thing We ever collided with! */
   sw1stKuzure: number;
+  /**
+   * Nice roll-up! So aristocratic! We are dazzled!
+   * Anything that scampers, let's just roll it up *before* it runs off.
+   */
   sw1stMv_mono_success: number;
+  /**
+   * Noooo, too late! What are you doing!
+   * If anything scampers, roll it up *before* it runs off.
+   */
   sw1stMv_mono_failure: number;
+  /** The same spot! We took Our first break ever on this *very* spot! */
   sw1stRest: number;
+  /** The same place! We took Our first swim ever in this *very* place! */
   sw1stWater: number;
+  /** O-kay. Time to learn about taking photos. */
   sw1stPhoto: number;
 
   constructor(buf: ArrayBuffer) {
@@ -153,40 +175,72 @@ export class SaveMission {
 }
 
 export class Game {
+  /** Unused. */
   lastAccessStarNo: number;
+  /** Unused. */
   endingMovieNo: number;
+  /** Amount of stardust added to the night sky. Amount added varies by mission. */
   starDustCount: number;
+  /** Unused. */
   catchPersonCount: number;
+  /** Unused. */
   endingCount: number;
+  /** Unused. (See counterpart in parent structure for the actual value.) */
   kataMaxSize: number;
+  /** Unused. (See counterpart in parent structure for the actual value.) */
   moonMaxSize: number;
+  /** ID of the cosmetic item equipped on the Prince. */
   equipItem: number;
+  /** Has every thing in the game been rolled up? */
   getAllItem: number;
+  /** Lookup of which presents have been *newly* collected. */
   itemList: number[];
 
+  /** Has every mission been cleared? */
   swAllClear: number;
+  /** Has a new star or constellation been added to the sky? */
   swAppearNewConstellation: number;
+  /** Has a new present been collected? */
   swAppearNewPresent: number;
+  /** Has a new cousin been unlocked? */
   swAppearNewPrince: number;
+  /** Lookup of which presents have been collected. */
   swItem: number[];
+  /** The big lookup of which things have been rolled up. */
   swMonoCatch: number[];
+  /**
+   * Element 48: Has the King's dialogue about completing the sky been shown?
+   * The preceding 47 elements are unused.
+   */
   swMovie: number[];
+  /** An unused not-as-big array; purpose unknown. */
   swNameMonoCatch: number[];
+  /** Unused. */
   swVisitToMemory: number;
-
+  /** Has the King explained the Home Planet */
   firstOujiStar: number;
+  /** Has the King explained Eternal missions? */
   explainedEternal: number;
 
+  /** The three photos currently stored in the camera, pending being moved to the album. */
   newPhoto: Photo[];
+  /** The file size of the JPEG-encoded images stored in `newPhoto`. */
   newPhotoSize: number[];
+  /** The timestamps of the photos in `newPhoto`, formatted as YYMMDD. */
   newPhotoDate: string[];
 
+  /** The three photos currently stored in the camera, pending being moved to the album. */
   memoryPhoto: Photo[];
+  /** The file size of the JPEG-encoded images stored in `memoryPhoto`. */
   memoryPhotoSize: number[];
+  /** The timestamps of the photos in `memoryPhoto`, formatted as YYMMDD. */
   memoryPhotoDate: string[];
 
+  /** Lookup of which cousins have been unlocked for multiplayer mode. */
   oujiArray: number[];
+  /** Whether the save file is considered valid and can be loaded. */
   canLoadSaveData: number;
+  /** Basically unused: only ever gets set to 0, and is never checked other than to write the save file. */
   trialVersion: number;
 
   constructor(r: BinaryReader) {
