@@ -11,7 +11,7 @@ export class MonoBehaviour extends AssetBase {
   script: PPtr;
   name: string;
 
-  payload: ArrayBufferLike;
+  payload: ArrayBuffer;
 
   constructor(r: BinaryReader, info: ObjectInfo) {
     super();

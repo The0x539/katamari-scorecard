@@ -1,4 +1,7 @@
-import type { KingTextDigest } from "./game-data/king-text.ts";
+import type {
+  KingTextDataDigest,
+  KingTextDigest,
+} from "./game-data/king-text.ts";
 import type { MissionInfoDigest } from "./game-data/mission-info.ts";
 import type { ThingDigest } from "./game-data/thing.ts";
 
@@ -6,6 +9,7 @@ import { swap } from "./util.ts";
 
 const jsonURLs = {
   locale: new URL("./game-data/locale.json", import.meta.url),
+  dialogue: new URL("./game-data/dialogue.json", import.meta.url),
   things: new URL("./game-data/things.json", import.meta.url),
   missions: new URL("./game-data/missions.json", import.meta.url),
 };
@@ -18,10 +22,12 @@ async function loadJSON<T = never>(url: URL): Promise<T> {
 
 export let missions: MissionInfoDigest[];
 export let localization: KingTextDigest;
+export let dialogue: KingTextDataDigest;
 export let things: Record<string, ThingData>;
 
 export const dataReady = Promise.allSettled([
   loadJSON(jsonURLs.locale).then((l) => localization = l),
+  loadJSON(jsonURLs.dialogue).then((d) => dialogue = d),
   loadJSON(jsonURLs.things).then((t) => (hydrateThings(t), things = t)),
   loadJSON<MissionInfoDigest[]>(jsonURLs.missions)
     .then((m) => (swap(m, 3, 4), missions = m)),

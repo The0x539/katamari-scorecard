@@ -139,7 +139,7 @@ export class BinaryReader<T extends ArrayBufferLike = ArrayBuffer>
     return s;
   }
 
-  remainder(): ArrayBufferLike {
-    return this.buffer.slice(this.i);
+  remainder(): T {
+    return this.buffer.slice(this.i) as T;
   }
 }

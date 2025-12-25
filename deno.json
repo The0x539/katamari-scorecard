@@ -2,9 +2,10 @@
   "nodeModulesDir": "auto",
   "tasks": {
     "dump-locale": "deno -R src/dump-strings.ts king_text > src/game-data/locale.json",
+    "dump-dialogue": "deno -R src/dump-strings.ts KingTextData > src/game-data/dialogue.json",
     "dump-missions": "deno -R src/dump-strings.ts mission > src/game-data/missions.json",
     "dump-things": "deno -R src/dump-strings.ts mononame > src/game-data/things.json",
-    "dump": "deno task dump-locale && deno task dump-missions && deno task dump-things",
+    "dump": "deno task dump-locale && deno task dump-dialogue && deno task dump-missions && deno task dump-things",
 
     "build": "deno run -A npm:@rsbuild/core build",
     "run": "deno run -A npm:@rsbuild/core dev",

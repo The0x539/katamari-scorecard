@@ -6,7 +6,7 @@ import { BinaryReader } from "./decode.ts";
 import * as fs from "@std/fs";
 import { MissionInfo } from "./game-data/mission-info.ts";
 import { Thing } from "./game-data/thing.ts";
-import { KingText } from "./game-data/king-text.ts";
+import { KingText, KingTextData } from "./game-data/king-text.ts";
 
 const steamDir = [
   "C:/Program Files (x86)/Steam/",
@@ -29,6 +29,7 @@ const resourceName = Deno.args[0];
 
 const GameDataType = {
   "king_text": KingText,
+  "KingTextData": KingTextData,
   "mission": MissionInfo,
   "mononame": Thing,
 }[resourceName];

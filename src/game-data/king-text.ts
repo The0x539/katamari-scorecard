@@ -34,3 +34,19 @@ export class KingText {
 }
 
 export type KingTextDigest = Record<string, string[]>;
+
+export class KingTextData {
+  id: string;
+  data: string;
+
+  constructor(r: BinaryReader) {
+    this.id = r.paddedString();
+    this.data = r.paddedString();
+  }
+
+  static makeDigest(data: KingTextData[]): KingTextDataDigest {
+    return Object.fromEntries(data.map((ktd) => [ktd.id, ktd.data]));
+  }
+}
+
+export type KingTextDataDigest = Record<string, string>;
