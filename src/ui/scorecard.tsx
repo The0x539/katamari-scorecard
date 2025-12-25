@@ -1,10 +1,4 @@
-import {
-  computed,
-  effect,
-  signal,
-  useComputed,
-  useSignal,
-} from "@preact/signals";
+import { computed, effect, signal, useSignal } from "@preact/signals";
 import { CSSTransition } from "preact-transitioning";
 import { Show } from "@preact/signals/utils";
 
@@ -14,36 +8,53 @@ import { king } from "../assets.ts";
 import { swap } from "../util.ts";
 import { Radio } from "./controls.tsx";
 import { Collection } from "./collection.tsx";
+import { Album } from "./album.tsx";
 
 import type { JSX, TargetedInputEvent } from "preact";
-import type { ReadonlySignal } from "@preact/signals";
 
 class FileState {
   private readonly source = signal<File | null>(null);
-  private readonly buffer = signal(new ArrayBuffer());
-
-  readonly save: ReadonlySignal<SaveFile | null> = computed(() => {
-    const buf = this.buffer.value;
-    if (buf.byteLength === 0) return null;
-
-    const save = new SaveFile(buf);
-    swap(save.missions, 3, 4); // bruh
-    return save;
-  });
-
-  constructor() {
-    effect(() => void this.refreshBuffer());
-    setInterval(() => this.refreshBuffer(), 15000);
-  }
+  readonly save = signal<SaveFile | null>(null);
 
   setSource(file: File | null | undefined): void {
     if (file) this.source.value = file;
   }
 
-  async refreshBuffer(): Promise<void> {
+  constructor() {
+    // Whenever the picked file (the read method's only subscription) changes,
+    // unconditionally reload the data from file.
+    effect(() => void this.read().then((save) => this.save.value = save));
+
+    // Attempt to automatically refresh the file,
+    // but try to check whether it actually changed first.
+    setInterval(async () => {
+      // https://www.w3.org/TR/FileAPI/#file-section
+      // From testing, real world browsers seem to snapshot the modification timestamp, but not the contents.
+      // This makes automatic reloading at least *possible*, but we need to load the data and compare it.
+      // Fortunately, there's a timestamp within the data,
+      const newSave = await this.read();
+      if (!newSave) return; // there's no new save to load
+
+      const oldTime = this.save.value?.timestamp();
+      const newTime = newSave.timestamp();
+
+      // Skip refresh iff both saves contain the same valid timestamp
+      if (oldTime != null && newTime != null && oldTime.equals(newTime)) return;
+
+      this.save.value = newSave;
+    }, 10000);
+  }
+
+  private async read(): Promise<SaveFile | null> {
     const source = this.source.value;
-    if (!source) return;
-    this.buffer.value = await source.arrayBuffer();
+    if (!source) return null;
+
+    const buf = await source.arrayBuffer();
+    if (buf.byteLength === 0) return null;
+
+    const save = new SaveFile(buf);
+    swap(save.missions, 3, 4); // TODO: just have an array of which missions to show, and in which order
+    return save;
   }
 }
 
@@ -58,11 +69,11 @@ const updateFile = (
   fileState.setSource(input.files?.[0]);
 };
 
+const hasFile = computed(() => fileState.save.value !== null);
+
 export function Scorecard(): JSX.Element {
   const link =
     "https://www.pcgamingwiki.com/wiki/Katamari_Damacy_Reroll#Save_game_data_location";
-
-  const hasFile = useComputed(() => fileState.save.value !== null);
 
   return (
     <>
@@ -81,14 +92,12 @@ export function Scorecard(): JSX.Element {
         </button>
       </Show>
       <KingOfAllCosmos />
-      <Show when={hasFile}>
-        <Body />
-      </Show>
+      {hasFile.value && <Body />}
     </>
   );
 }
 
-type Tab = "missions" | "collection";
+type Tab = "missions" | "collection" | "photos";
 
 function Body(): JSX.Element {
   const currentTab = useSignal<Tab>("missions");
@@ -100,7 +109,14 @@ function Body(): JSX.Element {
       </ol>
     ),
     collection: <Collection />,
+    photos: <Album />,
   };
+
+  // Theoretically, it would probably be ideal to only
+  // re-render the parts for which the data has changed,
+  // but all the data comes from reading the same file,
+  // so that would require splitting the object into a *bunch* of computed signals.
+  // This is probably fine.
 
   return (
     <>
@@ -112,6 +128,7 @@ function Body(): JSX.Element {
           choices={{
             "view-missions": { value: "missions", label: "Missions" },
             "view-collection": { value: "collection", label: "Collection" },
+            "view-photos": { value: "photos", label: "Album" },
           }}
         />
       </nav>

@@ -1,8 +1,9 @@
-export class BinaryReader extends DataView<ArrayBufferLike> {
+export class BinaryReader<T extends ArrayBufferLike = ArrayBuffer>
+  extends DataView<T> {
   private i = 0;
   littleEndian = true;
 
-  constructor(buffer: ArrayBufferLike) {
+  constructor(buffer: T) {
     super(buffer);
   }
 
@@ -86,17 +87,17 @@ export class BinaryReader extends DataView<ArrayBufferLike> {
     return v;
   }
 
-  pair<T>(f: (r: BinaryReader) => T): [T, T] {
+  pair<T>(f: (r: typeof this) => T): [T, T] {
     f = f.bind(this);
     return [f(this), f(this)];
   }
 
-  triple<T>(f: (r: BinaryReader) => T): [T, T, T] {
+  triple<T>(f: (r: typeof this) => T): [T, T, T] {
     f = f.bind(this);
     return [f(this), f(this), f(this)];
   }
 
-  array<T>(len: number, f: (r: BinaryReader) => T): T[] {
+  array<T>(len: number, f: (r: typeof this) => T): T[] {
     f = f.bind(this);
     const arr = [];
     for (let i = 0; i < len; i++) {
@@ -105,8 +106,11 @@ export class BinaryReader extends DataView<ArrayBufferLike> {
     return arr;
   }
 
-  bytes(len: number): Uint8Array {
-    const v = this.buffer.slice(this.i, this.i + len);
+  bytes(len: number): Uint8Array<T> {
+    const buffer: T = this.buffer;
+    const v: T = this.buffer.slice(this.i, this.i + len) as T;
+    console.assert(buffer.constructor === v.constructor);
+
     this.i += len;
     return new Uint8Array(v);
   }

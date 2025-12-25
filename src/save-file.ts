@@ -24,7 +24,7 @@ export class SaveFile {
   sw1stWater: number;
   sw1stPhoto: number;
 
-  constructor(buf: ArrayBufferLike) {
+  constructor(buf: ArrayBuffer) {
     const r = new BinaryReader(buf);
 
     this.moonMaxSize = r.i32();
@@ -46,6 +46,17 @@ export class SaveFile {
     this.sw1stRest = r.i32();
     this.sw1stWater = r.i32();
     this.sw1stPhoto = r.i32();
+  }
+
+  timestamp(): Temporal.PlainDateTime | null {
+    try {
+      // assumes well-formed data (i.e. from the game, rather than garbage)
+      const [year, month, day] = this.saveYmd.split("/").map(Number);
+      const [hour, minute] = this.saveTime.split(":").map(Number);
+      return new Temporal.PlainDateTime(year, month, day, hour, minute);
+    } catch {
+      return null;
+    }
   }
 }
 
@@ -168,11 +179,11 @@ export class Game {
 
   newPhoto: Photo[];
   newPhotoSize: number[];
-  newPhotoDate: Uint8Array[];
+  newPhotoDate: string[];
 
   memoryPhoto: Photo[];
   memoryPhotoSize: number[];
-  memoryPhotoDate: Uint8Array[];
+  memoryPhotoDate: string[];
 
   oujiArray: number[];
   canLoadSaveData: number;
@@ -205,20 +216,32 @@ export class Game {
 
     this.newPhoto = r.array(3, (r) => new Photo(r));
     this.newPhotoSize = r.array(3, r.i32);
-    this.newPhotoDate = r.array(3, (r) => r.bytes(6));
+    this.newPhotoDate = r.array(3, (r) => r.string(6));
+    this.resizePhotoBuffers(this.newPhoto, this.newPhotoSize);
 
     this.memoryPhoto = r.array(12, (r) => new Photo(r));
     this.memoryPhotoSize = r.array(12, r.i32);
-    this.memoryPhotoDate = r.array(12, (r) => r.bytes(6));
+    this.memoryPhotoDate = r.array(12, (r) => r.string(6));
+    this.resizePhotoBuffers(this.memoryPhoto, this.memoryPhotoSize);
 
     this.oujiArray = r.array(24, r.i32);
     this.canLoadSaveData = r.i32();
     this.trialVersion = r.i32();
   }
+
+  private resizePhotoBuffers(photos: Photo[], sizes: number[]): void {
+    if (photos.length !== sizes.length) {
+      throw new Error("Array length mismatch when slicing photo buffers");
+    }
+
+    sizes.forEach((len, i) => {
+      photos[i].data = photos[i].data.subarray(0, len);
+    });
+  }
 }
 
 export class Photo {
-  data: Uint8Array;
+  data: Uint8Array<ArrayBuffer>;
 
   constructor(r: BinaryReader) {
     this.data = r.bytes(1024 * 512);

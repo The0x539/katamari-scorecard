@@ -27,7 +27,7 @@ export class Asset {
   enableBigID: boolean = false;
   objectInfos: ObjectInfo[] = [];
 
-  constructor(readonly buf: ArrayBufferLike) {
+  constructor(readonly buf: ArrayBuffer) {
     const r = new BinaryReader(buf);
 
     const h = this.header = new AssetHeader(r);
@@ -219,9 +219,11 @@ export class ObjectInfo {
     if (version === 15 || version === 16) this.stripped = r.u8();
   }
 
-  getReader(buf: ArrayBufferLike): BinaryReader {
+  getReader<T extends ArrayBufferLike>(buf: T): BinaryReader<T> {
     const start = this.bytesStart;
     const end = start + this.bytesSize;
-    return new BinaryReader(buf.slice(start, end));
+    const chunk = buf.slice(start, end) as T;
+    console.assert(chunk.constructor === buf.constructor);
+    return new BinaryReader(chunk);
   }
 }
