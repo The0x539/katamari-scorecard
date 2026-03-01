@@ -8,6 +8,11 @@
   src: url("./assets/katamari-size.otf") format("truetype");
 }
 
+@font-face {
+  font-family: katamari_photo;
+  src: url("./assets/katamari-photo.otf") format("truetype");
+}
+
 * {
   box-sizing: border-box;
   font-family: inherit;
@@ -320,6 +325,17 @@ ul.camera {
       border-style: solid;
     }
   }
+}
+
+li.photo > time {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  line-height: 1em;
+  color: rgb(255, 255, 255, 0.75);
+  font-family: katamari_photo;
+  padding: 0.5em;
 }
 
 king-of-all-cosmos {

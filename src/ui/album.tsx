@@ -11,17 +11,17 @@ export function Album(): JSX.Element {
   return (
     <>
       <ul class="album">
-        {game.memoryPhoto.map(ShowPhoto)}
+        {game.memoryPhoto.map((p, i) => ShowPhoto(p, game.memoryPhotoDate[i]))}
       </ul>
 
       <ul class="camera">
-        {game.newPhoto.map(ShowPhoto)}
+        {game.newPhoto.map((p, i) => ShowPhoto(p, game.newPhotoDate[i]))}
       </ul>
     </>
   );
 }
 
-function ShowPhoto(photo: Photo): JSX.Element {
+function ShowPhoto(photo: Photo, date: string): JSX.Element {
   const blobURL = useSignal("");
 
   useEffect(() => {
@@ -44,7 +44,24 @@ function ShowPhoto(photo: Photo): JSX.Element {
 
   return (
     <li class="photo">
-      {blobURL.value && <img src={blobURL.value}></img>}
+      {blobURL.value && (
+        <>
+          {Timestamp(date)}
+          <img src={blobURL.value} />
+        </>
+      )}
     </li>
+  );
+}
+
+function Timestamp(date: string): JSX.Element {
+  const yy = date.slice(0, 2);
+  const mm = date.slice(2, 4);
+  const dd = date.slice(4, 6);
+
+  return (
+    <time datetime={`20${yy}-${mm}-${dd}`}>
+      '{yy} {mm} {dd}
+    </time>
   );
 }
