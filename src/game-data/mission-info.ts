@@ -98,6 +98,8 @@ export class MissionInfo {
       meteor: m.meteor,
       rank: m.rating_diameter,
       item: m.item,
+      start: m.startDiameter,
+      objective: m.clearType,
       ...extraData[i],
     }));
   }
@@ -108,22 +110,24 @@ export type MissionInfoDigest = {
   meteor: number;
   rank: number[];
   item: number;
+  start: number;
+  objective: string;
   name?: number;
   max?: number;
 };
 
 const extraData = [
   null,
-  { name: 6 }, // Make a Star 1
-  { name: 7 }, // Make a Star 2
-  { name: 11 }, // Make a Star 4 (yes these are out of order)
-  { name: 9 }, // Make a Star 3
-  { name: 12 }, // Make a Star 5
-  { name: 13 }, // Make a Star 6
-  { name: 14 }, // Make a Star 7
-  { name: 15 }, // Make a Star 8
-  { name: 16 }, // Make a Star 9
-  { name: 17 }, // Make the Moon
+  { name: 6, max: 20 }, // Make a Star 1
+  { name: 7, max: 40 }, // Make a Star 2
+  { name: 11, max: 150 }, // Make a Star 4 (yes these are out of order)
+  { name: 9, max: 100 }, // Make a Star 3
+  { name: 12, max: 300 }, // Make a Star 5
+  { name: 13, max: 700 }, // Make a Star 6
+  { name: 14, max: 1200 }, // Make a Star 7
+  { name: 15, max: 3000 }, // Make a Star 8
+  { name: 16, max: 6000 }, // Make a Star 9
+  { name: 17, max: 90000 }, // Make the Moon
 
   { name: 18, max: 133 }, // Make Cancer
   { name: 19, max: 70 }, // Make Cygnus
@@ -135,7 +139,7 @@ const extraData = [
   { name: 27, max: 108 }, // Make Gemini
   { name: 28 }, // Make Taurus
   null,
-  { name: 29 }, // Make the North Star
+  { name: 29, max: 12500, rank: [2500, 2000, 500, 0] }, // Make the North Star
 
   { name: 30 }, // Eternal 1
   { name: 31 }, // Eternal 2

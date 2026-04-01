@@ -128,7 +128,7 @@ ol.missions > li {
   list-style: none;
   display: flex;
   flex-direction: column;
-  max-height: 180px;
+  max-height: 230px;
   width: 400px;
   padding: 1em;
   background: var(--bg-blue);
@@ -162,6 +162,104 @@ ol.missions > li {
 
   dd ol {
     padding-inline-start: 1em;
+  }
+
+  figure.bar {
+    margin: 0;
+    width: 100%;
+
+    .label {
+      white-space: preserve;
+    }
+
+    .bar-container {
+      position: relative;
+      display: block;
+    }
+
+    meter {
+      width: 100%;
+    }
+
+    figcaption.marker {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      flex-direction: column-reverse;
+      width: 0;
+      inset-inline-start: calc(100% * (var(--pos) - var(--min, 0)) / (var(--max) - var(--min, 0)));
+      inset-block-end: 0;
+      user-select: none;
+      color: transparent;
+      text-wrap: nowrap;
+
+      --marker-color: white;
+
+      .time & {
+        --marker-color: lightseagreen;
+      }
+
+      .objective-n &,
+      .objective-b &,
+      .objective-e & {
+        &:nth-of-type(1) {
+          --marker-color: dimgray;
+        }
+        &:nth-of-type(2) {
+          --marker-color: sienna;
+        }
+        &:nth-of-type(3) {
+          --marker-color: silver;
+        }
+        &:nth-of-type(4) {
+          --marker-color: gold;
+        }
+      }
+
+      .objective-e & {
+        &:nth-of-type(5) {
+          --marker-color: silver;
+        }
+        &:nth-of-type(6) {
+          --marker-color: sienna;
+        }
+        &:nth-of-type(7) {
+          --marker-color: dimgray;
+        }
+      }
+
+      > data,
+      > time {
+        border-radius: 0.5em;
+        padding: 0.125em 0.25em;
+      }
+
+      &::before {
+        text-anchor: end;
+        content: '';
+        width: 0px;
+        height: 1lh;
+        border-inline: 2px solid var(--marker-color);
+        border-radius: 5px;
+        background: white;
+        outline: 10px solid transparent;
+      }
+
+      &:hover {
+        color: white;
+        > data,
+        > time {
+          background: oklch(from var(--fg-blue) calc(l - 0.3) calc(c - 0.05) h);
+        }
+      }
+
+      &::after {
+        height: 2lh;
+        content: '';
+        width: 30px;
+        position: absolute;
+      }
+    }
   }
 }
 
