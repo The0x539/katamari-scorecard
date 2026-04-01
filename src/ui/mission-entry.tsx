@@ -38,12 +38,20 @@ export function MissionEntry(
     "Diameter": formatSize(mission.clearSize),
     "Clear time": formatTime(mission.clearTime / 30),
     "Clear count": mission.clearCount,
-    "Present": mission.swPresent ? "🎁" : "🔎",
     "Objects": mission.clearCatchCount,
   };
 
+  if (missions[i].item >= 0) {
+    const icon = mission.swPresent ? "🎁" : "🔎";
+    let name = localize("OT_PRE", missions[i].item + 2);
+    if (missions[i].item == 12) {
+      name = localize("OT_OBJ", 22);
+    }
+    pairs["Present"] = `${icon} ${name}`;
+  }
+
   if (mission.rating < 5) {
-    pairs["Super Clear"] = formatSize(missions[i].super * 10);
+    pairs["Super Clear"] = formatSize(missions[i].rank[3] * 10);
     pairs["Rating"] = mission.rating;
   }
 
@@ -67,7 +75,7 @@ export function MissionEntry(
 
     // dumb hack but this whole building process is due for a reorganization
     if (pairs["Super Clear"]) {
-      pairs["Super Clear"] = missions[i].super;
+      pairs["Super Clear"] = missions[i].rank[3];
     }
 
     const max = missions[i].max;
@@ -93,7 +101,7 @@ export function MissionEntry(
 
   if (mission.fallenStarCount) {
     pairs["Meteor"] = localize("OT_STR", mission.fallenStarName);
-  } else {
+  } else if (missions[i].meteor > 0) {
     pairs["Shooting Star time"] = formatTime(missions[i].meteor * 60);
   }
 

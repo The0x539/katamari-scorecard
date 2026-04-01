@@ -54,7 +54,11 @@ export function localize(category: string, id: number): string;
 
 export function localize(category: string, id?: number): string {
   if (id !== undefined) {
-    const key = category + "_" + id.toString().padStart(3, "0");
+    let width = 3;
+    if (category === "OT_OBJ" || category === "OT_CMM") {
+      width = 4;
+    }
+    const key = category + "_" + id.toString().padStart(width, "0");
     return localize(key);
   }
 
