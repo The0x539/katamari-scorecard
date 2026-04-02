@@ -137,12 +137,12 @@ ol.missions > li {
   h2 {
     margin: 0;
     font-size: 2rem;
-    /* float: left; */
   }
 
   .img-a {
     float: left;
     margin: 0;
+    margin-right: 1em;
     img {
       height: 8rem;
     }
@@ -162,12 +162,18 @@ ol.missions > li {
   }
 
   dl {
-    overflow: hidden;
     height: 100%;
-    display: flex;
-    max-height: 120px;
     flex-wrap: wrap;
-    flex-direction: column;
+    column-fill: balance;
+    column-count: 3;
+
+    .img-a + & {
+      column-count: 2;
+    }
+
+    > div {
+      break-inside: avoid;
+    }
   }
 
   dt {
@@ -179,15 +185,29 @@ ol.missions > li {
 
   dd {
     margin-inline-start: 1em;
+    &:has(.img-present) {
+      margin-inline-start: 0.5em;
+    }
   }
 
   dd ol {
     padding-inline-start: 1em;
   }
 
-  &.objective-a {
-    dl {
-      max-height: 180px;
+  .img-present {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    
+    &:not([data-collected="1"]) {
+      img {
+        filter: contrast(0);
+        opacity: 0.75;
+      }
+    }
+
+    img {
+      height: 2rem;
     }
   }
 
@@ -292,7 +312,8 @@ ol.missions > li {
 }
 
 dt[data-label="Diameter"] + dd,
-dd.size {
+dd.size,
+figure.objective-n > data.label {
   font-family: katamari_size, sans-serif;
 }
 

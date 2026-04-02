@@ -1,7 +1,7 @@
 import type { ComponentChildren, JSX } from "preact";
 import { cowbearData, localize, missions } from "../data.ts";
 import type { SaveMission } from "../save-file.ts";
-import { bears, constellations, cows } from "../assets.ts";
+import { bears, constellations, cows, presents } from "../assets.ts";
 
 function formatSize(size: number, concise: boolean = false): string {
   if (size === 0) return "0";
@@ -80,15 +80,6 @@ export function MissionEntry(
     "Objects": mission.clearCatchCount,
   };
 
-  if (missions[i].item >= 0) {
-    const icon = mission.swPresent ? "🎁" : "🔎";
-    let name = localize("OT_PRE", missions[i].item + 2);
-    if (missions[i].item == 12) {
-      name = localize("OT_OBJ", 22);
-    }
-    pairs["Present"] = `${icon} ${name}`;
-  }
-
   if (mission.catchRanking[0]) {
     pairs["Ranking"] = localize("OT_STR", mission.catchRanking[0]);
   }
@@ -104,7 +95,6 @@ export function MissionEntry(
     pairs["Clear time"] = formatTime(mission.clearTime / 30);
   }
 
-  /*
   if (mission.catchRankCategory.some((n) => n !== 0)) {
     // TODO: take catchRankName into account
     // (represents tied placement, shows up ingame as e.g. 1st, 2nd, 2nd)
@@ -116,7 +106,6 @@ export function MissionEntry(
       </ol>
     );
   }
-  */
 
   if (mission.fallenStarCount > 0) {
     pairs["Meteor"] = localize("OT_STR", mission.fallenStarName);
@@ -134,6 +123,21 @@ export function MissionEntry(
   }
 
   const imgB = constellations.get(i);
+
+  let imgPre: URL | null = null;
+  let namePre = "";
+
+  if (missions[i].item >= 0) {
+    if (mission.swPresent) {
+      namePre = localize("OT_PRE", missions[i].item + 2);
+      if (missions[i].item == 12) {
+        namePre = localize("OT_OBJ", 22);
+      }
+    } else {
+      namePre = localize("OT_PRE", 1);
+    }
+    imgPre = presents[missions[i].item];
+  }
 
   return (
     <li class={`objective-${obj.toLowerCase()}`}>
@@ -162,6 +166,17 @@ export function MissionEntry(
             <dd>{v}</dd>
           </div>
         ))}
+        {imgPre && (
+          <div role="presentation">
+            <dt data-label="Present">Present</dt>
+            <dd>
+              <figure class="img-present" data-collected={mission.swPresent}>
+                <img src={imgPre.toString()} />
+                <figcaption>{namePre}</figcaption>
+              </figure>
+            </dd>
+          </div>
+        )}
       </dl>
     </li>
   );

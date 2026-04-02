@@ -16,24 +16,30 @@ export const king = {
 
 function urlSequence(
   count: number,
-  constellation: string,
-  animal: string,
+  f: (id: string) => URL,
 ): URL[] {
   const arr = [];
   for (let i = 1; i <= count; i++) {
     const id = i.toString().padStart(2, "0");
-    arr.push(
-      new URL(
-        `./assets/constellation/${constellation}/${animal}-${id}.png?url`,
-        import.meta.url,
-      ),
-    );
+    arr.push(f(id));
   }
   return arr;
 }
 
-export const bears = urlSequence(10, "ursa-major", "bear"),
-  cows = urlSequence(11, "taurus", "cow");
+export const bears = urlSequence(10, (id) =>
+    new URL(
+      `./assets/constellation/ursa-major/bear-${id}.png?url`,
+      import.meta.url,
+    )),
+  cows = urlSequence(11, (id) =>
+    new URL(
+      `./assets/constellation/taurus/cow-${id}.png?url`,
+      import.meta.url,
+    )),
+  presents = urlSequence(
+    16,
+    (id) => new URL(`./assets/present/p${id}.png?url`, import.meta.url),
+  );
 
 export const constellations: Map<number, URL> = (() => {
   const map = new Map();
