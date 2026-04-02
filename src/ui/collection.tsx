@@ -35,7 +35,7 @@ function collateCollection() {
   const [locations, byLocation] = gather((t) => t.spot);
 
   return {
-    all: thingList,
+    all: thingList.filter((t) => !!t.cat),
     categories,
     byCategory,
     locations,
@@ -48,7 +48,7 @@ function collateCollection() {
 let collection: ReturnType<typeof collateCollection>;
 dataReady.then(() => collection = collateCollection());
 
-type Mode = "all" | "category" | "location" | "size";
+type Mode = "all" | "remaining" | "category" | "location" | "size";
 type CollectionFilterState = {
   mode: Signal<Mode>;
   category: Signal<string>;
@@ -60,9 +60,13 @@ export function Collection(): JSX.Element {
   const filterState = createThingFilterState();
 
   const currentList = useComputed(() => {
+    let caught: number[];
     switch (filterState.mode.value) {
       case "all":
         return collection.all;
+      case "remaining":
+        caught = fileState.save.value!.game.swMonoCatch;
+        return collection.all.filter((t) => !caught[t.idx]);
       case "category":
         return collection.byCategory.get(filterState.category.value) ?? [];
       case "location":
@@ -144,6 +148,9 @@ function CollectionFilters(
   const sizeLabel = (s: string) =>
     radioItem(s, localizeSize(s), collection.bySize);
 
+  const numItems = collection.all.length;
+  const numCaught = collection.all.filter((t) => caught[t.idx]).length;
+
   return (
     <>
       <div role="radiogroup">
@@ -152,7 +159,14 @@ function CollectionFilters(
           bind={state.mode}
           defaultChoice="filter-category"
           choices={{
-            "filter-all": { value: "all", label: "Everything" },
+            "filter-all": {
+              value: "all",
+              label: `Everything (${numCaught} / ${numItems})`,
+            },
+            "filter-reamining": {
+              value: "remaining",
+              label: `Remaining (${numItems - numCaught})`,
+            },
             "filter-category": { value: "category", label: "Category" },
             "filter-location": { value: "location", label: "Location" },
             "filter-size": { value: "size", label: "Size" },
