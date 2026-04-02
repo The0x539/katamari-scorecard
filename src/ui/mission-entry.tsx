@@ -1,6 +1,7 @@
 import type { ComponentChildren, JSX } from "preact";
 import { cowbearData, localize, missions } from "../data.ts";
 import type { SaveMission } from "../save-file.ts";
+import { bears, constellations, cows } from "../assets.ts";
 
 function formatSize(size: number, concise: boolean = false): string {
   if (size === 0) return "0";
@@ -103,17 +104,7 @@ export function MissionEntry(
     pairs["Clear time"] = formatTime(mission.clearTime / 30);
   }
 
-  if (mission.nameA) {
-    delete pairs["Super Clear"];
-
-    const data = cowbearData.get(mission.nameA);
-    if (data) {
-      const name = localize("OT_CON", data?.resultName);
-      const size = localize("UI_SYS", data?.resultSize);
-      pairs["Constellation object"] = `${name} (${size})`;
-    }
-  }
-
+  /*
   if (mission.catchRankCategory.some((n) => n !== 0)) {
     // TODO: take catchRankName into account
     // (represents tied placement, shows up ingame as e.g. 1st, 2nd, 2nd)
@@ -125,16 +116,37 @@ export function MissionEntry(
       </ol>
     );
   }
+  */
 
-  if (mission.fallenStarCount) {
+  if (mission.fallenStarCount > 0) {
     pairs["Meteor"] = localize("OT_STR", mission.fallenStarName);
-  } else if (missions[i].meteor > 0) {
-    pairs["Shooting Star time"] = formatTime(missions[i].meteor * 60);
   }
 
+  let imgA: URL | null = null;
+  let nameA = "", sizeA = "";
+  if (mission.nameA) {
+    const data = cowbearData.get(mission.nameA);
+    if (data) {
+      imgA = (i === 17 ? bears : cows)[data.idx];
+      nameA = localize("OT_CON", data.resultName);
+      sizeA = localize("UI_SYS", data.resultSize);
+    }
+  }
+
+  const imgB = constellations.get(i);
+
   return (
-    <li>
+    <li class={`objective-${obj.toLowerCase()}`}>
+      {imgB && <img class="img-b" src={imgB.toString()} />}
       <h2>{name}</h2>
+      {imgA && (
+        <figure class="img-a">
+          <img src={imgA.toString()} />
+          <figcaption>
+            {nameA} <br /> {sizeA}
+          </figcaption>
+        </figure>
+      )}
       {obj === "N" &&
         SizeMeter(mission.clearSize, i)}
       {obj === "B" &&
