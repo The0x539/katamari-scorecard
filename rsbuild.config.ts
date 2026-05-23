@@ -3,7 +3,17 @@ import { pluginPreact } from "@rsbuild/plugin-preact";
 import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 
 export default defineConfig({
-  html: { template: "./src/index.html" },
+  html: {
+    template: "./src/index.html",
+    favicon: "./src/assets/prince.png",
+    appIcon: {
+      name: "Katamari Scorecard",
+      icons: [
+        { src: "./src/assets/katamari.png", size: 192 },
+        { src: "./src/assets/katamari.png", size: 512 },
+      ],
+    },
+  },
   dev: {
     // this seems to break the dynamic temporal-polyfill import
     lazyCompilation: false,
